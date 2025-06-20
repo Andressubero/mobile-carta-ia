@@ -99,7 +99,7 @@ fun BottomNavBar(
                 )
             },
             label = {
-                if (currentRoute == "cart") {
+                if (currentRoute == "vehiclesView") {
                     Box(
                         modifier = Modifier
                             .size(8.dp)

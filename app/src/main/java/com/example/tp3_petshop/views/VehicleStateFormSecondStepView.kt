@@ -7,12 +7,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +42,8 @@ import com.example.tp3_petshop.models.PartPosition
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tp3_petshop.R
 import com.example.tp3_petshop.data.sedanPoints
@@ -61,43 +68,22 @@ fun VehicleStateFormSecondStepView(
     onNext: () -> Unit,
     vehicleViewModel: VehicleViewModel = hiltViewModel()
 ) {
+
+    var imageWidthPx by remember { mutableStateOf(0f) }
+    var imageHeightPx by remember { mutableStateOf(0f) }
+    val vehicle by vehicleViewModel.vehicleWithPartsById.collectAsState()
+    val partStates by viewModel.estadoPartes.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
     val context = LocalContext.current
+    val density = LocalDensity.current
     var selectedPart by remember { mutableStateOf<PartPosition?>(null) }
     var showPopup by remember { mutableStateOf(false) }
     var damageType by remember { mutableStateOf(DamageType.ABOLLADURA) }
     var description by remember { mutableStateOf("") }
-    var imageWidthPx by remember { mutableStateOf(0f) }
-    var imageHeightPx by remember { mutableStateOf(0f) }
-    @DrawableRes
-    val croquisRes: Int
-    var points by remember { mutableStateOf(emptyList<PartPosition>()) }
-    val vehicle by vehicleViewModel.vehicleWithPartsById.collectAsState()
-    val partStates by viewModel.estadoPartes.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
-
-
-    LaunchedEffect(Unit) {
-        if (vehicleId.isNotBlank() && vehicle == null) {
-            vehicleViewModel.getVehicleWithPartsById(vehicleId)
-        }
-    }
-
-    LaunchedEffect(vehicle) {
-        vehicle?.let {
-            val ep = it.parts.map { part ->
-                EstadoParte(
-                    name = part.name,
-                    partId = part.id,
-                    damages = listOf(DamagePoint(DamageType.SIN_DANO, ""))
-                )
-            }
-            viewModel.setEstadoPartes(ep)
-        }
-    }
+    var imageSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
 
     val type = vehicle?.type?.let { normalize(it) }.orEmpty()
-
-    croquisRes = when {
+    val croquisRes = when {
         type.contains("sed") -> R.drawable.sedan_croquis
         type.contains("hatch") -> R.drawable.hatchback_croquis
         type.contains("pick") -> R.drawable.pickup_croquis
@@ -105,100 +91,93 @@ fun VehicleStateFormSecondStepView(
         else -> R.drawable.sedan_croquis
     }
 
-    points = when {
+    val points = when {
         type.contains("sed") -> sedanPoints
         else -> sedanPoints
     }
 
-    fun onAddDamage(n: String, d: DamagePoint, image: String) {
-        viewModel.addDamage(n, d)
-        viewModel.addSide(image)
-    }
-
-
-    errorMessage?.let { message ->
-        Text(
-            text = message,
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium,
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Imagen con puntos
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp)
-        )
-    }
+                .onGloballyPositioned {
+                    imageSize = it.size
+                }
+        ) {
+            Image(
+                painter = painterResource(id = croquisRes),
+                contentDescription = null,
+                modifier = Modifier.fillMaxWidth()
+            )
 
-    if (vehicle != null && errorMessage.isNullOrEmpty()) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Box(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                Image(
-                    painter = painterResource(id = croquisRes),
-                    contentDescription = null,
+            points.forEach { part ->
+                val isSelected = partStates.find { it.name == part.name }
+                    ?.damages?.any { it.damageType != DamageType.SIN_DANO } == true
+
+                val offsetX = (part.leftPercent / 100f) * imageSize.width
+                val offsetY = (part.topPercent / 100f) * imageSize.height
+
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .onGloballyPositioned { layoutCoordinates ->
-                            imageWidthPx = layoutCoordinates.size.width.toFloat()
-                            imageHeightPx = layoutCoordinates.size.height.toFloat()
+                        .absoluteOffset(
+                            x = with(density) { offsetX.toDp() },
+                            y = with(density) { offsetY.toDp() }
+                        )
+                        .size(20.dp)
+                        .background(
+                            color = if (isSelected) Color.Red else Color.Blue,
+                            shape = CircleShape
+                        )
+                        .clickable {
+                            selectedPart = part
+                            damageType = DamageType.ABOLLADURA
+                            description = ""
+                            showPopup = true
                         }
                 )
-
-
-                points.forEach { part ->
-                    val isSelected = partStates.find { it.name == part.name }
-                        ?.damages?.any { it.damageType != DamageType.SIN_DANO } == true
-
-                    Box(
-                        modifier = Modifier
-                            .offset(
-                                x =  part.leftPercent.dp,
-                                y = part.topPercent.dp
-                            )
-                            .size(24.dp)
-                            .background(
-                                if (isSelected) Color.Red else Color.Blue,
-                                shape = CircleShape
-                            )
-                            .clickable {
-                                selectedPart = part
-                                damageType = DamageType.ABOLLADURA
-                                description = ""
-                                showPopup = true
-                            }
-                    )
-                }
-
-                if (showPopup && selectedPart != null) {
-                    selectedPart?.let { part ->
-                        val offsetX = percentToOffset(part.leftPercent, imageWidthPx)
-                        val offsetY = percentToOffset(part.topPercent, imageHeightPx)
-
-                        DamagePopup(
-                            position = Offset(offsetX, offsetY),
-                            selectedPartName = part.name,
-                            damageType = damageType,
-                            description = description,
-                            onDamageTypeChange = { damageType = it },
-                            onDescriptionChange = { description = it },
-                            onCancel = { showPopup = false },
-                            onSave = {
-                                onAddDamage(
-                                    n = part.name,
-                                    d = DamagePoint(damageType, description),
-                                    image = part.side
-                                )
-                                Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
-                                showPopup = false
-                            }
-                        )
-                    }
-                }
-
-
             }
         }
 
+        Spacer(modifier = Modifier.height(24.dp))
+
+        NavigationButtons(onBack = onBack, onNext = onNext)
+
+        // Modal separado de la imagen
+        if (showPopup && selectedPart != null) {
+            val part = selectedPart!!
+            val offsetX = (part.leftPercent / 100f) * imageSize.width
+            val offsetY = (part.topPercent / 100f) * imageSize.height
+
+            DamagePopup(
+                position = Offset(offsetX, offsetY),
+                selectedPartName = part.name,
+                damageType = damageType,
+                description = description,
+                onDamageTypeChange = { damageType = it },
+                onDescriptionChange = { description = it },
+                onCancel = { showPopup = false },
+                onSave = {
+                    viewModel.addDamage(
+                        part.name,
+                        DamagePoint(damageType, description)
+                    )
+                    viewModel.addSide(part.side)
+                    Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
+                    showPopup = false
+                }
+            )
+        }
     }
-    NavigationButtons(onBack = { onBack() }, onNext = {onNext() })
+
+
 }
+
 
 @Composable
 fun NavigationButtons(

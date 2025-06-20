@@ -36,7 +36,7 @@ fun VehicleList(
                     .padding(bottom = 16.dp)
             ) {
                 Text(
-                    text = "Best Seller",
+                    text = "Vehículos Registrados",
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -51,7 +51,7 @@ fun VehicleList(
                 items(vehicles) { state ->
                     VehicleCard(
                         vehicle = state,
-                        onDetailClick = { navController.navigate("detail/${state.id}") },
+                        onDetailClick = { navController.navigate("vehicleStateFormFirstStep/${state.id}") },
                     )
                 }
             }

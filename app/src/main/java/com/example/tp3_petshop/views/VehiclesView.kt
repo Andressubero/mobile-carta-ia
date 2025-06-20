@@ -29,7 +29,7 @@ fun VehiclesView(
 
     Scaffold(
         containerColor = Color(0xFFFFFFFF),
-        bottomBar = { BottomNavBar(currentRoute = "homeView", onNavigate = { route ->
+        bottomBar = { BottomNavBar(currentRoute = "vehiclesView", onNavigate = { route ->
             navController.navigate(route)
         }) }
 

@@ -56,7 +56,7 @@ fun VehicleStateList(
                         .padding(bottom = 16.dp)
                 ) {
                     Text(
-                        text = "Best Seller",
+                        text = "Cartas de daño registradas",
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.headlineSmall
                     )

@@ -47,7 +47,7 @@ class VehicleViewModel @Inject constructor(
         _vehicleById.value = repository.getVehicleById(id)
     }
 
-    fun getAll() {
+    fun getAll() = viewModelScope.launch{
         _vehicles.value = repository.getAll();
     }
 
