@@ -1,5 +1,4 @@
 package com.example.tp3_petshop.views
-
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -7,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,39 +26,40 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.tp3_petshop.R
 import com.example.tp3_petshop.components.DamagePopup
 import com.example.tp3_petshop.models.DamageType
 import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.PartPosition
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntSize
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.tp3_petshop.R
-import com.example.tp3_petshop.data.sedanPoints
 import com.example.tp3_petshop.models.DamagePoint
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
 import java.text.Normalizer
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.painter.Painter
+import com.example.tp3_petshop.data.sedanPoints
 
 fun normalize(text: String): String {
     return Normalizer.normalize(text, Normalizer.Form.NFD)
         .replace(Regex("\\p{InCombiningDiacriticalMarks}+"), "")
         .lowercase()
 }
-
-
 
 @Composable
 fun VehicleStateFormSecondStepView(
@@ -68,19 +69,18 @@ fun VehicleStateFormSecondStepView(
     onNext: () -> Unit,
     vehicleViewModel: VehicleViewModel = hiltViewModel()
 ) {
-
-    var imageWidthPx by remember { mutableStateOf(0f) }
-    var imageHeightPx by remember { mutableStateOf(0f) }
     val vehicle by vehicleViewModel.vehicleWithPartsById.collectAsState()
     val partStates by viewModel.estadoPartes.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val context = LocalContext.current
     val density = LocalDensity.current
+
     var selectedPart by remember { mutableStateOf<PartPosition?>(null) }
     var showPopup by remember { mutableStateOf(false) }
     var damageType by remember { mutableStateOf(DamageType.ABOLLADURA) }
     var description by remember { mutableStateOf("") }
-    var imageSize: IntSize by remember { mutableStateOf(IntSize.Zero) }
+    var imageSize by remember { mutableStateOf(IntSize.Zero) }
+    var containerSize by remember { mutableStateOf(IntSize.Zero) }
 
     val type = vehicle?.type?.let { normalize(it) }.orEmpty()
     val croquisRes = when {
@@ -96,88 +96,96 @@ fun VehicleStateFormSecondStepView(
         else -> sedanPoints
     }
 
-    Column(
+    BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        // Imagen con puntos
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .onGloballyPositioned {
-                    imageSize = it.size
-                }
+        containerSize = IntSize(constraints.maxWidth, constraints.maxHeight)
+
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = croquisRes),
-                contentDescription = null,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            points.forEach { part ->
-                val isSelected = partStates.find { it.name == part.name }
-                    ?.damages?.any { it.damageType != DamageType.SIN_DANO } == true
-
-                val offsetX = (part.leftPercent / 100f) * imageSize.width
-                val offsetY = (part.topPercent / 100f) * imageSize.height
-
-                Box(
+            // Imagen con puntos
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Image(
+                    painter = painterResource(id = croquisRes),
+                    contentDescription = "Vista del vehículo",
                     modifier = Modifier
-                        .absoluteOffset(
-                            x = with(density) { offsetX.toDp() },
-                            y = with(density) { offsetY.toDp() }
+                        .fillMaxWidth()
+                        .onGloballyPositioned { coordinates ->
+                            imageSize = coordinates.size // tamaño real de la imagen
+                        },
+                    contentScale = ContentScale.FillWidth // ocupa el ancho total
+                )
+
+                // Renderizado de puntos
+                points.forEach { part ->
+                    val isSelected = partStates.find { it.name == part.name }
+                        ?.damages?.any { it.damageType != DamageType.SIN_DANO } == true
+
+                    val offsetX = (part.leftPercent / 100f) * imageSize.width
+                    val offsetY = (part.topPercent / 100f) * imageSize.height
+
+                    Box(
+                        modifier = Modifier
+                            .absoluteOffset(
+                                x = with(density) { offsetX.toDp() - 10.dp },
+                                y = with(density) { offsetY.toDp() - 10.dp }
+                            )
+                            .size(20.dp)
+                            .background(
+                                if (isSelected) Color.Red else Color.Blue,
+                                shape = CircleShape
+                            )
+                            .clickable {
+                                selectedPart = part
+                                damageType = DamageType.ABOLLADURA
+                                description = ""
+                                showPopup = true
+                            }
+                    )
+                }
+            }
+
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            NavigationButtons(onBack = onBack, onNext = onNext)
+
+            // Modal para agregar daños
+            if (showPopup && selectedPart != null) {
+                val part = selectedPart!!
+                val density = LocalDensity.current
+                val offsetXDp = with(density) { ((part.leftPercent / 100f) * imageSize.width).toDp() }
+                val offsetYDp = with(density) { ((part.topPercent / 100f) * imageSize.height).toDp() }
+
+                DamagePopup(
+                    position = Offset(offsetXDp.value, offsetYDp.value),
+                    selectedPartName = part.name,
+                    damageType = damageType,
+                    description = description,
+                    onDamageTypeChange = { damageType = it },
+                    onDescriptionChange = { description = it },
+                    onCancel = { showPopup = false },
+                    onSave = {
+                        viewModel.addDamage(
+                            part.name,
+                            DamagePoint(damageType, description)
                         )
-                        .size(20.dp)
-                        .background(
-                            color = if (isSelected) Color.Red else Color.Blue,
-                            shape = CircleShape
-                        )
-                        .clickable {
-                            selectedPart = part
-                            damageType = DamageType.ABOLLADURA
-                            description = ""
-                            showPopup = true
-                        }
+                        viewModel.addSide(part.side)
+                        Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
+                        showPopup = false
+                    }
                 )
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        NavigationButtons(onBack = onBack, onNext = onNext)
-
-        // Modal separado de la imagen
-        if (showPopup && selectedPart != null) {
-            val part = selectedPart!!
-            val offsetX = (part.leftPercent / 100f) * imageSize.width
-            val offsetY = (part.topPercent / 100f) * imageSize.height
-
-            DamagePopup(
-                position = Offset(offsetX, offsetY),
-                selectedPartName = part.name,
-                damageType = damageType,
-                description = description,
-                onDamageTypeChange = { damageType = it },
-                onDescriptionChange = { description = it },
-                onCancel = { showPopup = false },
-                onSave = {
-                    viewModel.addDamage(
-                        part.name,
-                        DamagePoint(damageType, description)
-                    )
-                    viewModel.addSide(part.side)
-                    Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
-                    showPopup = false
-                }
-            )
-        }
     }
-
-
 }
-
 
 @Composable
 fun NavigationButtons(
@@ -198,9 +206,4 @@ fun NavigationButtons(
         }
     }
 }
-
-fun percentToOffset(percent: Float, sizePx: Float): Float {
-    return (percent / 100f) * sizePx
-}
-
 
