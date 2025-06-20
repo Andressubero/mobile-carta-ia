@@ -11,10 +11,12 @@ interface VehicleService {
     @GET("/vehicle/create")
     suspend fun createVehicle(@Body request: VehicleRequest): Vehicle
 
-    @GET("vehicle/{id}")
+    @GET("/vehicle/{id}")
     suspend fun getVehicleById(@Path("id") id: String): Vehicle
 
     @GET("/vehicle/vehicle-with-parts/{id}")
     suspend fun getVehicleWithPartsById(@Path("id") id: String): VehicleDetail
 
+    @GET("/vehicle/myVehicles")
+    suspend fun getAll(): List<Vehicle>
 }

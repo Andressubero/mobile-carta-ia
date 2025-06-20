@@ -82,7 +82,7 @@ fun BestSellerView(navController: NavController) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            ProductListScreen(navController = navController)
+            VehicleStateList(navController = navController)
         }
 
         if (showBottomSheet) {

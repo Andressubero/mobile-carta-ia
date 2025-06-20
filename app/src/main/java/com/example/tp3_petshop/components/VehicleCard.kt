@@ -12,13 +12,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import com.example.tp3_petshop.models.VehicleState
+import com.example.tp3_petshop.models.Vehicle
 @Composable
-fun VehicleStateCard(
-    vehicle: VehicleState,
+fun VehicleCard(
+    vehicle: Vehicle,
     onDetailClick: () -> Unit,
-    onReportClick: () -> Unit,
-    onChangeStatusClick: () -> Unit
 ) {
     Card(
         modifier = Modifier
@@ -41,21 +39,20 @@ fun VehicleStateCard(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "Marca: ${vehicle.vehicle_brand}",
+                    text = "Marca: ${vehicle.brand}",
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Modelo: ${vehicle.vehicle_model}",
+                    text = "Modelo: ${vehicle.model}",
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Text(
-                    text = "Creado: ${vehicle.creation_date.substring(0, 10)}",
+                    text = "Año: ${vehicle.year}",
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
-                    text = "Estado: ${vehicle.validation_state}",
+                    text = "Patente: ${vehicle.plate}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (vehicle.validation_state == "APROBADA") Color(0xFF2E7D32) else Color(0xFFD32F2F)
                 )
             }
 
@@ -68,12 +65,6 @@ fun VehicleStateCard(
             ) {
                 IconButton(onClick = onDetailClick) {
                     Icon(Icons.Default.Info, contentDescription = "Ver detalle")
-                }
-                IconButton(onClick = onReportClick) {
-                    Icon(Icons.Default.Build, contentDescription = "Ver reporte")
-                }
-                IconButton(onClick = onChangeStatusClick) {
-                    Icon(Icons.Default.Add, contentDescription = "Cambiar estado")
                 }
             }
         }

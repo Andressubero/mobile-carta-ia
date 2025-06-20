@@ -28,12 +28,12 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 
 
 @Composable
-fun ProductListScreen(
+fun VehicleStateList(
     navController: NavController,
     viewModel: VehicleStateViewModel = hiltViewModel()
 ) {
     val states by viewModel.vehicleStates.collectAsState()
-    val error by viewModel.cartError.collectAsState()
+    val error: String? by viewModel.errorMessage.collectAsState()
 
     when {
         states.isEmpty() && error == null -> {
@@ -49,8 +49,6 @@ fun ProductListScreen(
             }
         }
         else -> {
-             // o .vehicleStates, si se llama así
-
             Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
                 Box(
                     modifier = Modifier
@@ -65,7 +63,7 @@ fun ProductListScreen(
                 }
 
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
+                    columns = GridCells.Fixed(1),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     modifier = Modifier.fillMaxHeight()
