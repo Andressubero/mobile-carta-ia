@@ -1,21 +1,17 @@
 package com.example.tp3_petshop.models
 
-data class CartRequest(
+data class VehicleStateRequest(
     val userId: Int,
     val products: List<CartProductRequest>
+)
+
+data class VehicleRequest(
+    val id: String,
 )
 
 data class CartProductRequest(
     val id: Int,
     val quantity: Int
-)
-
-data class CartResponse(
-    val id: Int,
-    val products: List<CartProductDetail>?,
-    val total: Double,
-    val totalProducts: Int,
-    val totalQuantity: Int
 )
 
 data class CartProductDetail(
@@ -28,7 +24,7 @@ data class CartProductDetail(
     val productId: Int
 )
 
-data class UpdateCartRequest(
-    val merge: Boolean = true,
-    val products: List<CartProductRequest>
+data class ChangeStatusRequest(
+    val id: String,
+    val validation_state: String
 )

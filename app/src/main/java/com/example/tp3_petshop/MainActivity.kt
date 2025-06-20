@@ -33,6 +33,7 @@ import com.example.tp3_petshop.views.DetailView
 import com.example.tp3_petshop.views.NotificationsListView
 import com.example.tp3_petshop.views.PaymentMethodConfigView
 import com.example.tp3_petshop.views.PaymentSuccessView
+import com.example.tp3_petshop.views.ReportView
 import com.example.tp3_petshop.views.SearchView
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -122,12 +123,14 @@ class MainActivity : ComponentActivity() {
                     composable("homeScreen") {
                         HomeScreen(navController)
                     }
-                    composable("detail/{productId}") { backStackEntry ->
-                        val productId = backStackEntry.arguments?.getString("productId")?.toIntOrNull()
-                        if (productId != null) {
-                            DetailView(productId = productId, navController = navController)
+                    composable("detail/{id}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("id")
+                        if (id != null) {
+                            DetailView(stateId = id, navController = navController)
                         }
                     }
+
+
                     composable("cart") {
                         CartView(navController = navController)
                     }
@@ -168,6 +171,12 @@ class MainActivity : ComponentActivity() {
                         BestSellerView(
                             navController
                         )
+                    }
+                    composable("reportView/{id}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("id")
+                        if (id != null) {
+                            ReportView(reportId = id, navController = navController)
+                        }
                     }
                 }
             }

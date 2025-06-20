@@ -40,13 +40,11 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tp3_petshop.R
-import com.example.tp3_petshop.components.ProductCard
 import com.example.tp3_petshop.components.SwitchButtons
 import com.example.tp3_petshop.components.TabsButton
 import com.example.tp3_petshop.models.ButtonOption
 import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
-import com.example.tp3_petshop.viewmodel.ProductUiState
-import com.example.tp3_petshop.viewmodel.ProductViewModel
+
 
 
 val options = listOf(
@@ -59,6 +57,13 @@ val switchOptions = listOf(
     ButtonOption("Seller Mode", "seller"),
 )
 
+@Composable
+fun ProfileViewSellerMode(
+    navigate: (value: String) -> Unit,
+) {
+    Text("ProfileViewSellerMode")
+}
+/*
 @Composable
 fun ProfileViewSellerMode(
     navigate: (value: String) -> Unit,
@@ -228,3 +233,5 @@ fun ProfileViewSellerModePreview () {
         ProfileViewSellerMode({})
     }
 }
+
+ */

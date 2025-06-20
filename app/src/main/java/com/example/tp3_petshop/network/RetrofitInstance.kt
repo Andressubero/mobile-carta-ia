@@ -7,39 +7,38 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitInstance {
 
-    private const val BASE_URL = "https://dummyjson.com/"
+    private const val BASE_URL = "http://10.0.2.2:5000"
 
     private val logging = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BODY
-    } // opcional: para ver los logs de las peticiones HTTP (fran)
+    }
 
     private val client = OkHttpClient.Builder()
         .addInterceptor(logging)
+        .cookieJar(CookieManager()) // 🔁 Esta instancia se comparte
         .build()
 
-    val api: ProductService by lazy {
+    private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client)
+            .client(client) // 🔁 Todos usan este mismo cliente
             .addConverterFactory(GsonConverterFactory.create())
             .build()
-            .create(ProductService::class.java)
     }
 
-    val cartApi: CartService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .client(client)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(CartService::class.java)
+    val vehicleService: VehicleService by lazy {
+        retrofit.create(VehicleService::class.java)
     }
 
-    private val retrofit = Retrofit.Builder()
-        .baseUrl(BASE_URL)
-        .addConverterFactory(GsonConverterFactory.create())
-        .build()
+    val vehicleStateService: VehicleStateService by lazy {
+        retrofit.create(VehicleStateService::class.java)
+    }
 
-    val authService: AuthService = retrofit.create(AuthService::class.java)
+    val reportService: AIReportService by lazy {
+        retrofit.create(AIReportService::class.java)
+    }
 
+    val authService: AuthService by lazy {
+        retrofit.create(AuthService::class.java)
+    }
 }

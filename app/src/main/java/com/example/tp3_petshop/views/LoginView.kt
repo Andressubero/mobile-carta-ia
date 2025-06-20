@@ -160,7 +160,7 @@ fun LoginView(navController: NavController? = null) {
                                 Login(username = email, password = password)
                             )
                         }
-                        println("Token recibido: ${response.token}")
+                        println("Response: ${response}")
                         navController?.navigate("homeScreen")
                     } catch (e: Exception) {
                         println("Error en login: ${e.message}")

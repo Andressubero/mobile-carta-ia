@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,16 +14,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tp3_petshop.components.CartItemList
-import com.example.tp3_petshop.viewmodel.CartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CartView(navController: NavController,
-             cartViewModel: CartViewModel = hiltViewModel()) {
-    val cart by cartViewModel.cart.collectAsState()
+             ) {
+   /* val cart by cartViewModel.cart.collectAsState()
     val isCartEmpty = cart?.products.isNullOrEmpty()
 
     fun onCheckout() {
@@ -135,6 +132,8 @@ fun CartView(navController: NavController,
             }
         }
     }
+
+    */
 
 }
 

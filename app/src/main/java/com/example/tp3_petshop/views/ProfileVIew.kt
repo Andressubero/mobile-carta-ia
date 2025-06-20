@@ -41,19 +41,24 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tp3_petshop.R
 import com.example.tp3_petshop.components.BottomNavBar
-import com.example.tp3_petshop.components.ProductCard
 import com.example.tp3_petshop.components.SwitchButtons
 import com.example.tp3_petshop.components.TabsButton
 import com.example.tp3_petshop.models.ButtonOption
 import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
-import com.example.tp3_petshop.viewmodel.CombinedViewModel
 
 val optionsProfile = listOf(
     ButtonOption("Saved", "saved"),
     ButtonOption("Edit Profile", "editprofile")
 )
 
+@Composable
+fun ProfileView(
+    navigate: (value: String) -> Unit,
+){
+    Text("ProfileView")
+}
 
+/*
 @Composable
 fun ProfileView(
     navigate: (value: String) -> Unit,
@@ -177,3 +182,5 @@ fun ProfileViewPreview () {
         ProfileView({}, viewModel())
     }
 }
+
+ */
