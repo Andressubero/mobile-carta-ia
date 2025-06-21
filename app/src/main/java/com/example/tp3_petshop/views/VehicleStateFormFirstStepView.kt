@@ -21,8 +21,8 @@ fun VehicleStateFormFirstStepView(
     vehicleId: String,
     onBack: () -> Unit,
     onNext: () -> Unit,
-    viewModel: VehicleStateViewModel = hiltViewModel(),
-    vehicleViewModel: VehicleViewModel = hiltViewModel()
+    viewModel: VehicleStateViewModel,
+    vehicleViewModel: VehicleViewModel
 ) {
     val dateFormat = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val today = remember { dateFormat.format(Date()) }

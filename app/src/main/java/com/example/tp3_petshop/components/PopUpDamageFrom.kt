@@ -13,9 +13,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
+import androidx.compose.material3.*
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -31,10 +32,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.tp3_petshop.models.DamageType
 
-
 @Composable
 fun DamagePopup(
-    position: Offset,
+    disable: Boolean = true,
     selectedPartName: String,
     damageType: DamageType,
     description: String,
@@ -43,69 +43,119 @@ fun DamagePopup(
     onSave: () -> Unit,
     onCancel: () -> Unit
 ) {
-    Box(
+    Column(
         modifier = Modifier
-            .absoluteOffset(x = position.x.dp, y = position.y.dp)
-            .background(Color.White, shape = RoundedCornerShape(8.dp))
-            .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
-            .padding(12.dp)
-            .width(250.dp)
+            .fillMaxWidth()
+            .padding(16.dp)
+            .background(Color.White, shape = RoundedCornerShape(12.dp))
+            .border(1.dp, Color.Gray.copy(alpha = 0.3f), shape = RoundedCornerShape(12.dp))
+            .padding(16.dp)
     ) {
-        Column {
-            Text(text = "Parte: $selectedPartName", style = MaterialTheme.typography.bodyLarge)
+        Text(
+            text = "Parte seleccionada: $selectedPartName",
+            style = MaterialTheme.typography.titleMedium
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-            Text("Tipo de daño:")
-            DropdownMenuBox(damageType, onDamageTypeChange)
+        Text(
+            text = "Tipo de daño:",
+            style = MaterialTheme.typography.labelMedium
+        )
+        DamageTypeDropdown(
+            selected = damageType,
+            onSelect = onDamageTypeChange,
+            enabled = !disable
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(12.dp))
 
-            Text("Descripción:")
-            TextField(
-                value = description,
-                onValueChange = onDescriptionChange,
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Ej: rayón leve en la puerta") }
-            )
+        Text(
+            text = "Descripción:",
+            style = MaterialTheme.typography.labelMedium
+        )
+        TextField(
+            value = description,
+            onValueChange = onDescriptionChange,
+            enabled = !disable,
+            modifier = Modifier.fillMaxWidth(),
+            placeholder = { Text("Ej: rayón leve en la puerta") },
+            singleLine = false,
+            maxLines = 3
+        )
 
-            Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(16.dp))
 
-            Row(horizontalArrangement = Arrangement.SpaceBetween) {
-                Button(onClick = onSave, modifier = Modifier.weight(1f),
-                    enabled = damageType == DamageType.SIN_DANO || description.isNotBlank()
-                ) {
-                    Text("Guardar")
-                }
-                Spacer(modifier = Modifier.width(8.dp))
-                Button(onClick = onCancel, modifier = Modifier.weight(1f)) {
-                    Text("Cancelar")
-                }
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Button(
+                onClick = onSave,
+                enabled = !disable && (damageType != DamageType.SIN_DANO || description.isNotBlank()),
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Guardar")
+            }
+
+            OutlinedButton(
+                onClick = onCancel,
+                enabled = !disable,
+                modifier = Modifier.weight(1f)
+            ) {
+                Text("Cancelar")
             }
         }
     }
 }
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DropdownMenuBox(
+fun DamageTypeDropdown(
     selected: DamageType,
-    onSelect: (DamageType) -> Unit
+    onSelect: (DamageType) -> Unit,
+    enabled: Boolean
 ) {
     var expanded by remember { mutableStateOf(false) }
 
-    Box {
-        OutlinedButton(onClick = { expanded = true }) {
-            Text(selected.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
-        }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { if (enabled) expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selected.name.replace("_", " ")
+                .lowercase()
+                .replaceFirstChar { it.uppercase() },
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled,
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+            label = { Text("Seleccionar tipo de daño") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors()
+        )
 
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
             DamageType.entries.forEach { type ->
-                DropdownMenuItem(onClick = {
-                    onSelect(type)
-                    expanded = false
-                }, text = {
-                    Text(type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
-                })
+                DropdownMenuItem(
+                    onClick = {
+                        onSelect(type)
+                        expanded = false
+                    },
+                    text = {
+                        Text(
+                            type.name.replace("_", " ")
+                                .lowercase()
+                                .replaceFirstChar { it.uppercase() }
+                        )
+                    }
+                )
             }
         }
     }

@@ -28,6 +28,9 @@ class VehicleStateViewModel @Inject constructor(
     private val _changeStatus = MutableStateFlow<VehicleState?>(null)
     val changeStatus: StateFlow<VehicleState?> = _changeStatus
 
+    private val _isFirst = MutableStateFlow<Boolean>(false)
+    val isFirst: StateFlow<Boolean> = _isFirst
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -125,6 +128,23 @@ class VehicleStateViewModel @Inject constructor(
                 val response = repository.changeStatus(request)
                 if (response.isSuccessful) {
                     _changeStatus.value = response.body()
+                    _errorMessage.value = null
+                } else {
+                    _errorMessage.value = "Error al actualizar estado: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Exception: ${e.message}"
+            }
+        }
+    }
+    fun isFirstState(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.isFirstState(id)
+                if (response.isSuccessful) {
+                    var body = response.body()
+                    println("🧩 estado filtrado → $body")
+                    _isFirst.value = response.body()?.isFirst == true
                     _errorMessage.value = null
                 } else {
                     _errorMessage.value = "Error al actualizar estado: ${response.code()}"

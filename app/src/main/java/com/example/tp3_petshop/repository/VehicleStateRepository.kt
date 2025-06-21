@@ -1,6 +1,7 @@
 package com.example.tp3_petshop.repository
 
 import com.example.tp3_petshop.models.ChangeStatusRequest
+import com.example.tp3_petshop.models.IsFirstStateResponse
 import com.example.tp3_petshop.models.VehicleState
 import com.example.tp3_petshop.models.VehicleStateRequest
 import com.example.tp3_petshop.network.RetrofitInstance
@@ -18,9 +19,11 @@ class VehicleStateRepository @Inject constructor() {
     }
 
     suspend fun changeStatus(request: ChangeStatusRequest): Response<VehicleState> {
-        return RetrofitInstance.vehicleStateService.changeState(
-            request
-        )
+        return RetrofitInstance.vehicleStateService.changeState(request)
+    }
+
+    suspend fun isFirstState(id: String): Response<IsFirstStateResponse> {
+        return RetrofitInstance.vehicleStateService.isFirstState(id)
     }
 
 }

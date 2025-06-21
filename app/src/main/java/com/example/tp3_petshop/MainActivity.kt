@@ -36,6 +36,7 @@ import com.example.tp3_petshop.views.ReportView
 import com.example.tp3_petshop.views.SearchView
 import com.example.tp3_petshop.views.VehicleStateFormFirstStepView
 import com.example.tp3_petshop.views.VehicleStateFormSecondStepView
+import com.example.tp3_petshop.views.VehicleStateFormView
 import com.example.tp3_petshop.views.VehiclesStateFormThirdStepView
 import com.example.tp3_petshop.views.VehiclesView
 import dagger.hilt.android.AndroidEntryPoint
@@ -177,28 +178,13 @@ class MainActivity : ComponentActivity() {
                             ReportView(reportId = id, navController = navController)
                         }
                     }
-                    composable("vehicleStateFormFirstStep/{id}") { backStackEntry ->
+                    composable("vehicleStateForm/{id}") { backStackEntry ->
                         val id = backStackEntry.arguments?.getString("id")
                         if (id != null) {
-                            VehicleStateFormFirstStepView(vehicleId = id,
-                                onBack = { navController.popBackStack() },
-                                onNext = { navController.navigate("vehicleStateFormSecondStep/$id") })
+                            VehicleStateFormView(vehicleId = id, navController)
+                        }else {
+                            HomeScreen(navController)
                         }
-                    }
-                    composable("vehicleStateFormSecondStep/{id}") { backStackEntry ->
-                        val id = backStackEntry.arguments?.getString("id")
-                        if (id != null) {
-                            VehicleStateFormSecondStepView(
-                                vehicleId = id,
-                                onBack = { navController.popBackStack() },
-                                onNext = { navController.navigate("vehicleStateFormThirdStep/$id") })
-                        }
-                    }
-                    composable("vehicleStateFormThirdStep") {
-                        VehiclesStateFormThirdStepView(
-                            onBack = { navController.popBackStack() },
-                            onNext = { navController.navigate("homeScreen") }
-                        )
                     }
                     composable("vehiclesView") {
                         VehiclesView(

@@ -8,16 +8,34 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.tp3_petshop.R
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
@@ -25,10 +43,11 @@ import com.example.tp3_petshop.viewmodel.VehicleViewModel
 
 @Composable
 fun VehiclesStateFormThirdStepView(
-    viewModel: VehicleStateViewModel = hiltViewModel(),
+    vehicleId: String,
+    viewModel: VehicleStateViewModel,
     onBack: () -> Unit,
-    onNext: () -> Unit,
-    vehicleViewModel: VehicleViewModel = hiltViewModel()
+    onNavigate: () -> Unit,
+    vehicleViewModel: VehicleViewModel
 ) {
     val context = LocalContext.current
     val sides by viewModel.sides.collectAsState()
@@ -69,6 +88,15 @@ fun VehiclesStateFormThirdStepView(
         "TOP" to "Techo"
     )
 
+    val vehicleType = vehicle?.type?.let { normalize(it) } ?: ""
+    val exampleImages = mapOf(
+        "FRONT" to R.drawable.sedan_front_example,
+        "BACK" to R.drawable.sedan_back_example,
+        "LATERAL_LEFT" to R.drawable.sedan_left_example,
+        "LATERAL_RIGHT" to R.drawable.sedan_right_example,
+        "TOP" to R.drawable.sedan_top_example
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -82,34 +110,67 @@ fun VehiclesStateFormThirdStepView(
 
         sides.forEach { sideKey ->
             val label = sideLabels[sideKey] ?: sideKey
+            val exampleRes = exampleImages[sideKey] ?: R.drawable.sedan_top_example // usá un placeholder si falta alguno
 
-            Column(modifier = Modifier.padding(vertical = 8.dp)) {
-                Text("Seleccioná la imagen de $label:")
+            Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                Text("Foto de $label", style = MaterialTheme.typography.bodyLarge)
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Imagen de ejemplo
+                    Image(
+                        painter = painterResource(id = exampleRes),
+                        contentDescription = "Ejemplo $label",
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(100.dp)
+                            .padding(end = 4.dp),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    // Imagen subida (preview)
+                    val bitmap = images[sideKey]?.preview
+                    if (bitmap != null) {
+                        Image(
+                            bitmap = bitmap,
+                            contentDescription = "Preview $label",
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp)
+                                .padding(start = 4.dp),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(100.dp)
+                                .padding(start = 4.dp)
+                                .background(Color.LightGray),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text("Sin imagen")
+                        }
+                    }
+                }
 
                 Button(
                     onClick = {
                         currentSideKey = sideKey
                         launcher.launch("image/*")
                     },
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth()
                 ) {
                     Text("Seleccionar imagen")
                 }
-
-                // ⚠️ Aquí cambiamos el let{} por un if() dentro del contexto composable
-                val bitmap = images[sideKey]?.preview
-                if (bitmap != null) {
-                    Image(
-                        bitmap = bitmap,
-                        contentDescription = "Preview de $label",
-                        modifier = Modifier
-                            .padding(top = 8.dp)
-                            .height(100.dp)
-                            .fillMaxWidth()
-                    )
-                }
             }
-
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -122,7 +183,7 @@ fun VehiclesStateFormThirdStepView(
                 Text("Anterior")
             }
             Button(
-                onClick = onNext,
+                onClick = onNavigate,
                 enabled = images.size == sides.size
             ) {
                 Text("Crear Estado")

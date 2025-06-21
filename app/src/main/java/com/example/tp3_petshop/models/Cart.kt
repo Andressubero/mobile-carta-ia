@@ -5,6 +5,10 @@ data class VehicleStateRequest(
     val products: List<CartProductRequest>
 )
 
+data class IsFirstStateResponse(
+    val isFirst: Boolean,
+)
+
 data class VehicleRequest(
     val id: String,
 )

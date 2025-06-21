@@ -53,7 +53,12 @@ import com.example.tp3_petshop.viewmodel.VehicleViewModel
 import java.text.Normalizer
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.positionInWindow
+import com.example.tp3_petshop.data.hatchbackPoints
+import com.example.tp3_petshop.data.motorbikePoints
+import com.example.tp3_petshop.data.pickupPoints
 import com.example.tp3_petshop.data.sedanPoints
+import kotlinx.coroutines.flow.update
 
 fun normalize(text: String): String {
     return Normalizer.normalize(text, Normalizer.Form.NFD)
@@ -64,13 +69,14 @@ fun normalize(text: String): String {
 @Composable
 fun VehicleStateFormSecondStepView(
     vehicleId: String,
-    viewModel: VehicleStateViewModel = hiltViewModel(),
+    viewModel: VehicleStateViewModel,
     onBack: () -> Unit,
     onNext: () -> Unit,
-    vehicleViewModel: VehicleViewModel = hiltViewModel()
+    vehicleViewModel: VehicleViewModel
 ) {
     val vehicle by vehicleViewModel.vehicleWithPartsById.collectAsState()
     val partStates by viewModel.estadoPartes.collectAsState()
+    val isFirstState by viewModel.isFirst.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
     val context = LocalContext.current
     val density = LocalDensity.current
@@ -81,6 +87,25 @@ fun VehicleStateFormSecondStepView(
     var description by remember { mutableStateOf("") }
     var imageSize by remember { mutableStateOf(IntSize.Zero) }
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
+    var imageOffset by remember { mutableStateOf(Offset.Zero) }
+
+    LaunchedEffect(vehicle?.parts?.size) {
+        if (!vehicle?.parts.isNullOrEmpty()) {
+            val mapped = vehicle!!.parts.map { part ->
+                EstadoParte(
+                    name = part.name,
+                    partId = part.id,
+                    damages = listOf(DamagePoint(DamageType.SIN_DANO, ""))
+                )
+            }
+            viewModel.setEstadoPartes(mapped)
+            println("✅ EstadoPartes cargados: ${mapped.size}")
+        } else {
+            vehicleViewModel.getVehicleWithPartsById(vehicleId)
+            viewModel.isFirstState(vehicleId)
+        }
+    }
+
 
     val type = vehicle?.type?.let { normalize(it) }.orEmpty()
     val croquisRes = when {
@@ -93,7 +118,21 @@ fun VehicleStateFormSecondStepView(
 
     val points = when {
         type.contains("sed") -> sedanPoints
+        type.contains("pic") -> pickupPoints
+        type.contains("mot") -> motorbikePoints
+        type.contains("hat") -> hatchbackPoints
         else -> sedanPoints
+    }
+
+    fun onSubmit() {
+        var filteredStates: List<EstadoParte>
+        if (!isFirstState) {
+            filteredStates = partStates.filter { estadoParte ->
+                estadoParte.damages.any { it.damageType != DamageType.SIN_DANO }
+            }
+            viewModel.setEstadoPartes(filteredStates)
+            println("🧩 estado filtrado → $filteredStates")
+        }
     }
 
     BoxWithConstraints(
@@ -119,6 +158,7 @@ fun VehicleStateFormSecondStepView(
                         .fillMaxWidth()
                         .onGloballyPositioned { coordinates ->
                             imageSize = coordinates.size // tamaño real de la imagen
+                            imageOffset = coordinates.positionInWindow()
                         },
                     contentScale = ContentScale.FillWidth // ocupa el ancho total
                 )
@@ -155,34 +195,35 @@ fun VehicleStateFormSecondStepView(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            NavigationButtons(onBack = onBack, onNext = onNext)
 
-            // Modal para agregar daños
-            if (showPopup && selectedPart != null) {
-                val part = selectedPart!!
-                val density = LocalDensity.current
-                val offsetXDp = with(density) { ((part.leftPercent / 100f) * imageSize.width).toDp() }
-                val offsetYDp = with(density) { ((part.topPercent / 100f) * imageSize.height).toDp() }
-
-                DamagePopup(
-                    position = Offset(offsetXDp.value, offsetYDp.value),
-                    selectedPartName = part.name,
-                    damageType = damageType,
-                    description = description,
-                    onDamageTypeChange = { damageType = it },
-                    onDescriptionChange = { description = it },
-                    onCancel = { showPopup = false },
-                    onSave = {
+            DamagePopup(
+                disable = selectedPart == null,
+                selectedPartName = selectedPart?.name ?: "Parte no seleccionada",
+                damageType = damageType,
+                description = description,
+                onDamageTypeChange = { damageType = it },
+                onDescriptionChange = { description = it },
+                onCancel = {
+                    showPopup = false
+                    selectedPart = null
+                },
+                onSave = {
+                    selectedPart?.let { part ->
                         viewModel.addDamage(
                             part.name,
                             DamagePoint(damageType, description)
                         )
                         viewModel.addSide(part.side)
                         Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
-                        showPopup = false
                     }
-                )
-            }
+                    damageType = DamageType.SIN_DANO
+                    description = ""
+                    selectedPart = null
+                    showPopup = false
+                }
+            )
+
+            NavigationButtons(onBack = onBack, onNext = { onSubmit() })
         }
     }
 }

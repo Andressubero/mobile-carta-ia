@@ -51,4 +51,5 @@ class VehicleViewModel @Inject constructor(
         _vehicles.value = repository.getAll();
     }
 
+
 }
