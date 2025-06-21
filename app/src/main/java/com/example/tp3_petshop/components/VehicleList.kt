@@ -51,7 +51,7 @@ fun VehicleList(
                 items(vehicles) { state ->
                     VehicleCard(
                         vehicle = state,
-                        onDetailClick = { navController.navigate("vehicleStateFormFirstStep/${state.id}") },
+                        onDetailClick = { navController.navigate("vehicleStateForm/${state.id}") },
                     )
                 }
             }

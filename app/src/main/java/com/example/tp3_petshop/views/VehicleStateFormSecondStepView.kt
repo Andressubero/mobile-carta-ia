@@ -89,8 +89,8 @@ fun VehicleStateFormSecondStepView(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var imageOffset by remember { mutableStateOf(Offset.Zero) }
 
-    LaunchedEffect(vehicle?.parts?.size) {
-        if (!vehicle?.parts.isNullOrEmpty()) {
+    LaunchedEffect(vehicle?.id) {
+        if (!vehicle?.parts.isNullOrEmpty() && partStates.isEmpty()) {
             val mapped = vehicle!!.parts.map { part ->
                 EstadoParte(
                     name = part.name,
@@ -132,6 +132,13 @@ fun VehicleStateFormSecondStepView(
             }
             viewModel.setEstadoPartes(filteredStates)
             println("🧩 estado filtrado → $filteredStates")
+            if (filteredStates.isNotEmpty()) {
+                onNext()
+            } else {
+                Toast.makeText(context, "Debes seleccionar al menos una parte", Toast.LENGTH_SHORT).show()
+            }
+        } else {
+            onNext()
         }
     }
 

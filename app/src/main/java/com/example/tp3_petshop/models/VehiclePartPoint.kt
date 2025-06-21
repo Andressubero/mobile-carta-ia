@@ -2,6 +2,7 @@ package com.example.tp3_petshop.models
 
 import android.net.Uri
 import androidx.compose.ui.graphics.ImageBitmap
+import com.google.gson.annotations.SerializedName
 
 data class PartPosition(
     val name: String,
@@ -13,15 +14,16 @@ data class PartPosition(
 enum class DamageType { ABOLLADURA, RAYON, OTRO, SIN_DANO }
 
 data class DamagePoint(
-    val damageType: DamageType,
+    @SerializedName("damage_type") val damageType: DamageType,
     val description: String
 )
 
 data class EstadoParte(
     val name: String,
-    val partId: String,
+    @SerializedName("part_id") val partId: String,
     val damages: List<DamagePoint>
 )
+
 
 data class VehicleImage(
     val file: Uri,

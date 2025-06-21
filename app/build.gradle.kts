@@ -79,5 +79,11 @@ dependencies {
     ksp(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
 
+    // Fuel HTTP client
+    implementation(libs.fuel)
+
+// Fuel + Gson converter
+    implementation(libs.fuel.gson)
+
 
 }

@@ -8,18 +8,29 @@ import com.example.tp3_petshop.models.DamageType
 import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.models.VehicleState
-import com.example.tp3_petshop.models.VehicleStateRequest
 import com.example.tp3_petshop.repository.VehicleStateRepository
+import com.github.kittinunf.fuel.Fuel
+import com.github.kittinunf.fuel.core.FileDataPart
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.File
+import android.content.Context
+import java.io.InputStream
 import javax.inject.Inject
+import com.github.kittinunf.fuel.core.Method
+import com.github.kittinunf.fuel.core.BlobDataPart
+import com.github.kittinunf.fuel.core.LazyDataPart
+import dagger.hilt.android.qualifiers.ApplicationContext
+
 
 @HiltViewModel
 class VehicleStateViewModel @Inject constructor(
-    private val repository: VehicleStateRepository
+    private val repository: VehicleStateRepository,
+    @ApplicationContext private val context: Context
 ) : ViewModel() {
 
     private val _vehicleStates = MutableStateFlow<List<VehicleState>>(emptyList())
@@ -46,13 +57,14 @@ class VehicleStateViewModel @Inject constructor(
     private val _images = MutableStateFlow<Map<String, VehicleImage>>(emptyMap())
     val images: StateFlow<Map<String, VehicleImage>> = _images
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
     fun addImage(sideKey: String, image: VehicleImage) {
         _images.value = _images.value.toMutableMap().apply {
             put(sideKey, image) // reemplaza si ya existe
         }
     }
-
-
 
     fun setDate(date: String) {
         _selectedDate.value = date
@@ -105,22 +117,41 @@ class VehicleStateViewModel @Inject constructor(
         }
     }
 
-    fun createState(request: VehicleStateRequest) {
+    fun createVehicleState(
+        vehicleId: String,
+        brand: String,
+        model: String,
+        onSuccess: () -> Unit
+    ) {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                val response = repository.createState(request)
+                val response = repository.create(
+                    context = context,
+                    vehicleId = vehicleId,
+                    date = selectedDate.value!!,
+                    brand = brand,
+                    model = model,
+                    estadoPartes = _estadoPartes.value,
+                    images = _images.value
+                )
+
                 if (response.isSuccessful) {
-                    // podés hacer un refresh si querés:
-                    getAll()
-                    _errorMessage.value = null
+                    println("✅ Estado creado correctamente")
+                    onSuccess() // <-- solo si fue exitoso
                 } else {
-                    _errorMessage.value = "Error al crear: ${response.code()}"
+                    _errorMessage.value = "Error al actualizar estado: ${response.code()}"
+                    println("❌ Error: ${response.code()} - ${response.errorBody()?.string()}")
                 }
             } catch (e: Exception) {
-                _errorMessage.value = "Exception: ${e.message}"
+                println("❌ Excepción: ${e.stackTraceToString()}")
+                _errorMessage.value = "Error al actualizar estado: ${e.message}"
+            } finally {
+                _isLoading.value = false
             }
         }
     }
+
 
     fun changeStatus(request: ChangeStatusRequest) {
         viewModelScope.launch {

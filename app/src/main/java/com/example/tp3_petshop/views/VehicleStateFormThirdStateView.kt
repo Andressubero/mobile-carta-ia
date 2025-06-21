@@ -19,9 +19,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -36,6 +38,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.tp3_petshop.R
+import com.example.tp3_petshop.models.DamagePoint
+import com.example.tp3_petshop.models.DamageType
+import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
@@ -53,8 +58,15 @@ fun VehiclesStateFormThirdStepView(
     val sides by viewModel.sides.collectAsState()
     val images by viewModel.images.collectAsState()
     val vehicle by vehicleViewModel.vehicleWithPartsById.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
 
     var currentSideKey by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(Unit) {
+        if (vehicle == null) {
+            vehicleViewModel.getVehicleWithPartsById(vehicleId)
+        }
+    }
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -88,7 +100,6 @@ fun VehiclesStateFormThirdStepView(
         "TOP" to "Techo"
     )
 
-    val vehicleType = vehicle?.type?.let { normalize(it) } ?: ""
     val exampleImages = mapOf(
         "FRONT" to R.drawable.sedan_front_example,
         "BACK" to R.drawable.sedan_back_example,
@@ -97,96 +108,120 @@ fun VehiclesStateFormThirdStepView(
         "TOP" to R.drawable.sedan_top_example
     )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Text(
-            text = "Subí imágenes de los lados afectados",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
+    fun onSubmit() {
+        vehicle?.let {
+            println("✅ Vehicle usado: ${it.id} ${it.brand} ${it.model}")
+            viewModel.createVehicleState(
+                vehicleId = vehicleId,
+                brand = it.brand,
+                model = it.model,
+                onSuccess = onNavigate
+            )
+        }
+    }
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = "Subí imágenes de los lados afectados",
+                style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
 
-        sides.forEach { sideKey ->
-            val label = sideLabels[sideKey] ?: sideKey
-            val exampleRes = exampleImages[sideKey] ?: R.drawable.sedan_top_example // usá un placeholder si falta alguno
+            sides.forEach { sideKey ->
+                val label = sideLabels[sideKey] ?: sideKey
+                val exampleRes = exampleImages[sideKey]
+                    ?: R.drawable.sedan_top_example // usá un placeholder si falta alguno
 
-            Column(modifier = Modifier.padding(vertical = 12.dp)) {
-                Text("Foto de $label", style = MaterialTheme.typography.bodyLarge)
+                Column(modifier = Modifier.padding(vertical = 12.dp)) {
+                    Text("Foto de $label", style = MaterialTheme.typography.bodyLarge)
 
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Imagen de ejemplo
-                    Image(
-                        painter = painterResource(id = exampleRes),
-                        contentDescription = "Ejemplo $label",
+                    Row(
                         modifier = Modifier
-                            .weight(1f)
-                            .height(100.dp)
-                            .padding(end = 4.dp),
-                        contentScale = ContentScale.Crop
-                    )
-
-                    // Imagen subida (preview)
-                    val bitmap = images[sideKey]?.preview
-                    if (bitmap != null) {
+                            .fillMaxWidth()
+                            .padding(top = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Imagen de ejemplo
                         Image(
-                            bitmap = bitmap,
-                            contentDescription = "Preview $label",
+                            painter = painterResource(id = exampleRes),
+                            contentDescription = "Ejemplo $label",
                             modifier = Modifier
                                 .weight(1f)
                                 .height(100.dp)
-                                .padding(start = 4.dp),
+                                .padding(end = 4.dp),
                             contentScale = ContentScale.Crop
                         )
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(100.dp)
-                                .padding(start = 4.dp)
-                                .background(Color.LightGray),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text("Sin imagen")
+
+                        // Imagen subida (preview)
+                        val bitmap = images[sideKey]?.preview
+                        if (bitmap != null) {
+                            Image(
+                                bitmap = bitmap,
+                                contentDescription = "Preview $label",
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(100.dp)
+                                    .padding(start = 4.dp),
+                                contentScale = ContentScale.Crop
+                            )
+                        } else {
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(100.dp)
+                                    .padding(start = 4.dp)
+                                    .background(Color.LightGray),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("Sin imagen")
+                            }
                         }
                     }
-                }
 
+                    Button(
+                        onClick = {
+                            currentSideKey = sideKey
+                            launcher.launch("image/*")
+                        },
+                        modifier = Modifier
+                            .padding(top = 8.dp)
+                            .fillMaxWidth()
+                    ) {
+                        Text("Seleccionar imagen")
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                Button(onClick = onBack) {
+                    Text("Anterior")
+                }
                 Button(
-                    onClick = {
-                        currentSideKey = sideKey
-                        launcher.launch("image/*")
-                    },
-                    modifier = Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth()
+                    onClick = { onSubmit() },
+                    enabled = !isLoading && images.size == sides.size
                 ) {
-                    Text("Seleccionar imagen")
+                    Text("Crear Estado")
                 }
             }
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly
-        ) {
-            Button(onClick = onBack) {
-                Text("Anterior")
-            }
-            Button(
-                onClick = onNavigate,
-                enabled = images.size == sides.size
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f)),
+                contentAlignment = Alignment.Center
             ) {
-                Text("Crear Estado")
+                CircularProgressIndicator(color = Color.White)
             }
         }
     }
