@@ -101,13 +101,18 @@ class VehicleStateViewModel @Inject constructor(
         getAll()
     }
 
-    private fun getAll() {
+    fun getAll() {
         viewModelScope.launch {
             try {
                 val response = repository.getAll()
                 if (response.isSuccessful) {
-                    _vehicleStates.value = response.body().orEmpty()
-                    _errorMessage.value = null
+                    val data = response.body()
+                    if (data != null) {
+                        _vehicleStates.value = data
+                        _errorMessage.value = null
+                    } else {
+                        _errorMessage.value = "Error: cuerpo vacío inesperado"
+                    }
                 } else {
                     _errorMessage.value = "Error ${response.code()}: ${response.message()}"
                 }
