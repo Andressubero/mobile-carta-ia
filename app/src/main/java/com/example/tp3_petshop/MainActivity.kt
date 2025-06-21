@@ -13,7 +13,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.tp3_petshop.views.AccountView
-import com.example.tp3_petshop.views.CartView
 import com.example.tp3_petshop.views.BestSellerView
 import com.example.tp3_petshop.views.ChangeEmailView
 import com.example.tp3_petshop.views.ChangePasswordView
@@ -35,6 +34,11 @@ import com.example.tp3_petshop.views.PaymentMethodConfigView
 import com.example.tp3_petshop.views.PaymentSuccessView
 import com.example.tp3_petshop.views.ReportView
 import com.example.tp3_petshop.views.SearchView
+import com.example.tp3_petshop.views.VehicleStateFormFirstStepView
+import com.example.tp3_petshop.views.VehicleStateFormSecondStepView
+import com.example.tp3_petshop.views.VehicleStateFormView
+import com.example.tp3_petshop.views.VehiclesStateFormThirdStepView
+import com.example.tp3_petshop.views.VehiclesView
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -131,10 +135,6 @@ class MainActivity : ComponentActivity() {
                     }
 
 
-                    composable("cart") {
-                        CartView(navController = navController)
-                    }
-
                     composable("changePasswordView") {
                         ChangePasswordView(
                             fun(value: String) {
@@ -177,6 +177,20 @@ class MainActivity : ComponentActivity() {
                         if (id != null) {
                             ReportView(reportId = id, navController = navController)
                         }
+                    }
+                    composable("vehicleStateForm/{id}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("id")
+                        if (id != null) {
+                            VehicleStateFormView(vehicleId = id, navController)
+                        }else {
+                            HomeScreen(navController)
+                        }
+                    }
+                    composable("vehiclesView") {
+                        VehiclesView(
+                           navController = navController
+
+                        )
                     }
                 }
             }

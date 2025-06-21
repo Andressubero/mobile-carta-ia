@@ -22,4 +22,8 @@ class VehicleRepository @Inject constructor() {
         return RetrofitInstance.vehicleService.getVehicleWithPartsById(id)
     }
 
+    suspend fun getAll(): List<Vehicle> {
+        return RetrofitInstance.vehicleService.getAll()
+    }
+
 }

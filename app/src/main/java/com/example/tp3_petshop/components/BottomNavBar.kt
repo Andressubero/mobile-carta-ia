@@ -20,6 +20,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.material.icons.filled.DirectionsCar
+import androidx.compose.material.icons.outlined.DirectionsCar
+
+// import androidx.compose.material.icons.rounded.
+
 
 @Composable
 fun BottomNavBar(
@@ -84,17 +89,17 @@ fun BottomNavBar(
 
 
         NavigationBarItem(
-            selected = currentRoute == "cart",
-            onClick = { onNavigate("cart") },
+            selected = currentRoute == "vehiclesView",
+            onClick = { onNavigate("vehiclesView") },
             icon = {
                 Icon(
-                    if (currentRoute == "cart") Icons.Default.ShoppingCart else Icons.Outlined.ShoppingCart,
-                    contentDescription = "Inicio",
+                    if (currentRoute == "vehiclesView") Icons.Filled.DirectionsCar else Icons.Outlined.DirectionsCar,
+                    contentDescription = "vehiclesView",
                     modifier = Modifier.size(35.dp)
                 )
             },
             label = {
-                if (currentRoute == "cart") {
+                if (currentRoute == "vehiclesView") {
                     Box(
                         modifier = Modifier
                             .size(8.dp)

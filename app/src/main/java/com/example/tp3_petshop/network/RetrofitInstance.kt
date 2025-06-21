@@ -4,6 +4,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstance {
 
@@ -16,12 +17,15 @@ object RetrofitInstance {
     private val client = OkHttpClient.Builder()
         .addInterceptor(logging)
         .cookieJar(CookieManager()) // 🔁 Esta instancia se comparte
+        .connectTimeout(60, TimeUnit.SECONDS) // ⏱ Tiempo para conectar
+        .readTimeout(60, TimeUnit.SECONDS)    // ⏱ Tiempo para leer respuesta
+        .writeTimeout(60, TimeUnit.SECONDS)   // ⏱ Tiempo para escribir request
         .build()
 
     private val retrofit by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
-            .client(client) // 🔁 Todos usan este mismo cliente
+            .client(client)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
     }

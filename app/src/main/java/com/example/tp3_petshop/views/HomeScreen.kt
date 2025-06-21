@@ -90,49 +90,7 @@ fun HomeScreen(navController: NavController) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            Banner()
-            TabsButton(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                optionsHomeScreen,
-                selectedTab,
-                handleChangeSwitchButton,
-                allowFilter = true
-            )
-            Spacer(Modifier.height(16.dp))
-            ProductListScreen(navController = navController)
-        }
-
-        if (showBottomSheet) {
-            ModalBottomSheet(
-                onDismissRequest = { showBottomSheet = false },
-                sheetState = sheetState
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text("Location", style = MaterialTheme.typography.titleLarge)
-                    Spacer(modifier = Modifier.height(8.dp))
-                    OutlinedTextField(
-                        value = "",
-                        onValueChange = { },
-                        placeholder = { Text("Search your Location") },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.LocationOn, contentDescription = null)
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Column {
-                            Text("Track your Location", fontWeight = FontWeight.SemiBold)
-                            Text(
-                                "Automatically selects your current location",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = Color.Gray
-                            )
-                        }
-                    }
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
+            VehicleStateList(navController = navController)
         }
     }
 }

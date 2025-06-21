@@ -13,15 +13,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 @HiltViewModel
-class FavoriteProductViewModel @Inject constructor(
+class VehicleViewModel @Inject constructor(
     private val repository: VehicleRepository
 ) : ViewModel() {
-    private val _favoritesStateFlow = MutableStateFlow<List<Vehicle>>(emptyList())
-    val favoritesStateFlow: StateFlow<List<Vehicle>> = _favoritesStateFlow
+    private val _vehicles = MutableStateFlow<List<Vehicle>>(emptyList())
+    val vehicles: StateFlow<List<Vehicle>> = _vehicles
     private val _vehicleById = MutableStateFlow<Vehicle?>(null)
     val favoriteById: StateFlow<Vehicle?> = _vehicleById
     private val _vehicleWithPartsById = MutableStateFlow<VehicleDetail?>(null)
     val vehicleWithPartsById: StateFlow<VehicleDetail?> = _vehicleWithPartsById
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error
+
 
 
     fun createVehicle(request: VehicleRequest) = viewModelScope.launch {
@@ -30,11 +33,23 @@ class FavoriteProductViewModel @Inject constructor(
     }
 
     fun getVehicleWithPartsById(id: String) = viewModelScope.launch {
-        _vehicleWithPartsById.value = repository.getVehicleWithPartsById(id)
+        try {
+            val result = repository.getVehicleWithPartsById(id)
+            _vehicleWithPartsById.value = result
+            _error.value = null
+        } catch (e: Exception) {
+            _error.value = "Error al cargar vehículo: ${e.localizedMessage}"
+        }
     }
+
 
     fun getById(id: String) = viewModelScope.launch {
         _vehicleById.value = repository.getVehicleById(id)
     }
+
+    fun getAll() = viewModelScope.launch{
+        _vehicles.value = repository.getAll();
+    }
+
 
 }
