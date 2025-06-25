@@ -1,11 +1,16 @@
 package com.example.tp3_petshop.views
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,28 +26,46 @@ fun VehiclesView(
     navController: NavController,
     vehicleViewModel: VehicleViewModel = hiltViewModel()
 ) {
-    var vehicles  = vehicleViewModel.vehicles.collectAsState();
+    val vehicles by vehicleViewModel.vehicles.collectAsState()
 
     LaunchedEffect(Unit) {
         vehicleViewModel.getAll()
     }
 
-    Scaffold(
-        containerColor = Color(0xFFFFFFFF),
-        bottomBar = { BottomNavBar(currentRoute = "vehiclesView", onNavigate = { route ->
-            navController.navigate(route)
-        }) }
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
 
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-        ) {
-            VehicleList(vehicles = vehicles.value, navController = navController)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(gradient)
+    ) {
+        Scaffold(
+            containerColor = Color.Transparent,
+            bottomBar = {
+                BottomNavBar(currentRoute = "vehiclesView", onNavigate = { route ->
+                    navController.navigate(route)
+                })
+            }
+        ) { innerPadding ->
+            Column(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
+                    .fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+//                        .background(Color(0xFFF1F1F1), shape = MaterialTheme.shapes.medium)
+                        .padding(16.dp)
+                ) {
+                    VehicleList(vehicles = vehicles, navController = navController)
+                }
+            }
         }
     }
-
 }
 

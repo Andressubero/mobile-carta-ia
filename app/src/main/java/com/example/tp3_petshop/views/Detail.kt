@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,88 +38,88 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 
 
 @Composable
-fun DetailView(stateId: String, navController: NavController,
-               viewModel: VehicleStateViewModel = hiltViewModel()
-              ) {
-  val states by viewModel.vehicleStates.collectAsState()
-   var quantity by remember { mutableStateOf(1) }
-   fun addToCart() {
-       navController.navigate("cart")
-   }
-
-   LaunchedEffect(stateId) {
-
-   }
+fun DetailView(
+    stateId: String,
+    navController: NavController,
+    viewModel: VehicleStateViewModel = hiltViewModel()
+) {
+    val states by viewModel.vehicleStates.collectAsState()
     val vehicle = states.find { it.id == stateId }
 
-   if (vehicle != null) {
-       Scaffold { innerPadding ->
-           Box(
-               modifier = Modifier
-                   .fillMaxSize()
-                   .padding(innerPadding)
-           ) {
-               Column(
-                   modifier = Modifier
-                       .fillMaxSize()
-                       .padding(horizontal = 24.dp, vertical = 8.dp),
-                   verticalArrangement = Arrangement.SpaceBetween
-               ) {
-                   TopBarSection(
-                       title = "Product Detail",
-                       showFavorite = false,
-                       isFavorite = false,
-                       onBackClick = { navController.popBackStack() },
-                       onFavoriteClick = {  }
-                   )
+    if (vehicle != null) {
+        Scaffold { innerPadding ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+            ) {
+                val scrollState = rememberScrollState()
 
-                   Column(
-                       modifier = Modifier
-                           .weight(1f)
-                           .padding(top = 8.dp),
-                       verticalArrangement = Arrangement.spacedBy(16.dp)
-                   ) {
-                       Text("ID: ${vehicle.id}", style = MaterialTheme.typography.bodyMedium)
-                       Text("Marca: ${vehicle.vehicle_brand}")
-                       Text("Modelo: ${vehicle.vehicle_model}")
-                       Text("Fecha creación: ${vehicle.creation_date}")
-                       Text("Fecha declaración: ${vehicle.declared_date}")
-                       Text("Estado: ${vehicle.validation_state}")
-                       Text("Razones de validación:", fontWeight = FontWeight.Bold)
-                       Text(vehicle.validation_reasons)
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 12.dp)
+                ) {
+                    TopBarSection(
+                        title = "Información del vehículo",
+                        showFavorite = false,
+                        isFavorite = false,
+                        onBackClick = { navController.popBackStack() },
+                        onFavoriteClick = {}
+                    )
 
-                       Spacer(modifier = Modifier.height(16.dp))
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(scrollState)
+                            .padding(top = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Datos generales
+//                        Text("ID: ${vehicle.id}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Marca: ${vehicle.vehicle_brand}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Modelo: ${vehicle.vehicle_model}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Fecha de creación: ${vehicle.creation_date.substring(0, 10)}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Fecha de declaración: ${vehicle.declared_date}", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "Estado: ${vehicle.validation_state}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (vehicle.validation_state == "APROBADA") Color(0xFF2E7D32) else Color(0xFFD32F2F),
+                            fontWeight = FontWeight.Bold
+                        )
 
-                       Text("Partes del vehículo:", style = MaterialTheme.typography.titleMedium)
-                       vehicle.parts_state.forEach { part ->
-                           Divider()
-                           Text("Nombre: ${part.vehicle_part_name}")
-                           Text("ID: ${part.vehicle_part_id}")
-                           Text("Imagen: ${part.image}")
-                           part.damages.forEach { damage ->
-                               Text("Daño: ${damage.damage_type} - ${damage.description} - Reparado: ${damage.fixed}")
-                           }
-                       }
-                   }
+                        Divider(thickness = 1.dp, modifier = Modifier.padding(vertical = 8.dp))
 
-                   // Botón Add to Cart
-                   Button(
-                       onClick = {addToCart()},
-                       modifier = Modifier
-                           .fillMaxWidth()
-                           .height(56.dp),
-                       colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF735BF2)),
-                       shape = RoundedCornerShape(30.dp)
-                   ) {
-                       Text(text = "Volver", fontSize = 18.sp)
-                   }
-               }
-           }
-       }
-   } else {
-       Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-           CircularProgressIndicator()
-       }
-   }
+                        // Validación
+                        Text("Razones de validación:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
+                        Text(vehicle.validation_reasons, style = MaterialTheme.typography.bodySmall)
 
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        // Partes del vehículo
+                        Text("Partes del vehículo", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                        vehicle.parts_state.forEach { part ->
+                            Column(modifier = Modifier.padding(vertical = 4.dp)) {
+                                Divider(thickness = 0.8.dp, color = Color.Gray)
+                                Text("• ${part.vehicle_part_name}", fontWeight = FontWeight.SemiBold)
+//                                Text("ID: ${part.vehicle_part_id}", fontSize = 12.sp, color = Color.Gray)
+                                Text("Imagen: ${part.image}", fontSize = 12.sp, color = Color.Gray)
+                                part.damages.forEach { damage ->
+                                    Text(
+                                        "- ${damage.damage_type}: ${damage.description} (${if (damage.fixed) "Reparado" else "Sin reparar"})",
+                                        fontSize = 13.sp
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
+            }
+        }
+    } else {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+    }
 }

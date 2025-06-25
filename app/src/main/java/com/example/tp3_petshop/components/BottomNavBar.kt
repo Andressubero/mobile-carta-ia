@@ -1,9 +1,18 @@
 package com.example.tp3_petshop.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -22,6 +31,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.outlined.DirectionsCar
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalInspectionMode
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.zIndex
 
 // import androidx.compose.material.icons.rounded.
 
@@ -31,113 +47,63 @@ fun BottomNavBar(
     currentRoute: String,
     onNavigate: (String) -> Unit
 ) {
-    NavigationBar {
-        NavigationBarItem(
-            selected = currentRoute == "homeView",
-            onClick = { onNavigate("homeScreen") },
-            icon = {
-                Icon(
-                    if (currentRoute == "homeView") Icons.Default.Home else Icons.Outlined.Home,
-                    contentDescription = "Inicio",
-                    modifier = Modifier.size(35.dp)
+    val isPreview = LocalInspectionMode.current
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 32.dp, vertical = 12.dp)
+            .then(if (!isPreview) Modifier.navigationBarsPadding() else Modifier),
+        contentAlignment = Alignment.Center
+    ) {
+        NavigationBar(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(64.dp)
+                .clip(RoundedCornerShape(32.dp))
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(32.dp),
+                    clip = false
                 )
-            },
-            label = {
-                if (currentRoute == "homeView") {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(Color(0xFF7140FD), shape = CircleShape)
-                    )
-                }
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF7140FD),
-                unselectedIconColor = Color(0xFFAAAAAA), // o tu inactiveTextColor
-                indicatorColor = Color.Transparent
+                .background(Color.White),
+            containerColor = Color.White,
+            tonalElevation = 0.dp,
+        ) {
+            val items = listOf(
+                Triple("homeScreen", Icons.Default.Home, Icons.Outlined.Home),
+                Triple("vehiclesView", Icons.Filled.DirectionsCar, Icons.Outlined.DirectionsCar),
+                Triple("profileView", Icons.Default.Person, Icons.Outlined.Person)
             )
-        )
 
-
-        NavigationBarItem(
-            selected = currentRoute == "view",
-            onClick = { onNavigate("homeScreen") },
-            icon = {
-                Icon(
-                    if (currentRoute == "view") Icons.Outlined.Email else Icons.Outlined.Email,
-                    contentDescription = "Inicio",
-                    modifier = Modifier.size(35.dp)
+            items.forEach { (route, selectedIcon, unselectedIcon) ->
+                NavigationBarItem(
+                    selected = currentRoute == route,
+                    onClick = { onNavigate(route) },
+                    icon = {
+                        Icon(
+                            imageVector = if (currentRoute == route) selectedIcon else unselectedIcon,
+                            contentDescription = route,
+                            modifier = Modifier.size(28.dp)
+                        )
+                    },
+                    colors = NavigationBarItemDefaults.colors(
+                        selectedIconColor = Color(0xFF7140FD),
+                        unselectedIconColor = Color(0xFFAAAAAA),
+                        indicatorColor = Color.Transparent
+                    ),
+                    label = null
                 )
-            },
-            label = {
-                if (currentRoute == "view") {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(Color(0xFF7140FD), shape = CircleShape)
-                    )
-                }
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF7140FD),
-                unselectedIconColor = Color(0xFFAAAAAA), // o tu inactiveTextColor
-                indicatorColor = Color.Transparent
-            )
-        )
-
-
-
-
-        NavigationBarItem(
-            selected = currentRoute == "vehiclesView",
-            onClick = { onNavigate("vehiclesView") },
-            icon = {
-                Icon(
-                    if (currentRoute == "vehiclesView") Icons.Filled.DirectionsCar else Icons.Outlined.DirectionsCar,
-                    contentDescription = "vehiclesView",
-                    modifier = Modifier.size(35.dp)
-                )
-            },
-            label = {
-                if (currentRoute == "vehiclesView") {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(Color(0xFF7140FD), shape = CircleShape)
-                    )
-                }
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF7140FD),
-                unselectedIconColor = Color(0xFFAAAAAA),
-                indicatorColor = Color.Transparent
-            )
-        )
-
-        NavigationBarItem(
-            selected = currentRoute == "profileView",
-            onClick = { onNavigate("profileView") },
-            icon = {
-                Icon(
-                    if (currentRoute == "profileView") Icons.Default.Person else Icons.Outlined.Person,
-                    contentDescription = "profile",
-                    modifier = Modifier.size(35.dp),
-                )
-            },
-            label = {
-                if (currentRoute == "profileView") {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .background(Color(0xFF7140FD), shape = CircleShape)
-                    )
-                }
-            },
-            colors = NavigationBarItemDefaults.colors(
-                selectedIconColor = Color(0xFF7140FD),
-                unselectedIconColor = Color(0xFFAAAAAA),
-                indicatorColor = Color.Transparent
-            )
-        )
+            }
+        }
     }
+}
+
+@Preview
+@Composable
+fun BottomNavBarPreview() {
+    BottomNavBar(
+        currentRoute = "homeScreen",
+        onNavigate = {}
+    )
 }
