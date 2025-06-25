@@ -24,7 +24,6 @@ import com.example.tp3_petshop.network.VehicleStateService
 
 
 class VehicleStateRepository @Inject constructor(
-    private val vehicleStateService: VehicleStateService
 ) {
 
     suspend fun create(
@@ -84,7 +83,7 @@ class VehicleStateRepository @Inject constructor(
     }
 
     suspend fun changeStatus(request: ChangeStatusRequest): Response<VehicleState> {
-        return vehicleStateService.changeState(request)
+        return RetrofitInstance.vehicleStateService.changeState(request)
     }
 
     suspend fun isFirstState(id: String): Response<IsFirstStateResponse> {
