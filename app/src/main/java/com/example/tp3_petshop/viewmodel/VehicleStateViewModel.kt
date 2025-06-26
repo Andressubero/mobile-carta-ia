@@ -190,4 +190,6 @@ class VehicleStateViewModel @Inject constructor(
             }
         }
     }
+
+
 }

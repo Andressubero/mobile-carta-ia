@@ -20,8 +20,11 @@ import retrofit2.Response
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import javax.inject.Inject
+import com.example.tp3_petshop.network.VehicleStateService
 
-class VehicleStateRepository @Inject constructor() {
+
+class VehicleStateRepository @Inject constructor(
+) {
 
     suspend fun create(
         context: Context,
@@ -49,6 +52,7 @@ class VehicleStateRepository @Inject constructor() {
             "BACK" to "back",
             "TOP" to "top"
         )
+
 
         fun imagePart(key: String): MultipartBody.Part? {
             val vehicleImage = images[key] ?: return null
