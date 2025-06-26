@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.views
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -169,7 +170,7 @@ fun CreateVehicleView(navController: NavController? = null,
                     } else {
                         viewModel.createVehicle(
                             VehicleRequest(
-                                vehicleTypeId = selectedTypeId,
+                                vehicle_type_id = selectedTypeId,
                                 model = model,
                                 brand = brand,
                                 year = yearInt,
@@ -177,6 +178,8 @@ fun CreateVehicleView(navController: NavController? = null,
                             )
                         )
                     }
+                    Log.d("CreateVehicle", "Selected Type ID: $selectedTypeId")
+
                 },
                 enabled = isButtonEnabled
             )

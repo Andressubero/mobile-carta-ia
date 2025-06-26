@@ -18,7 +18,7 @@ data class Vehicle(
 )
 
 data class VehicleRequest(
-    val vehicleTypeId: String,
+    val vehicle_type_id: String,
     val model: String,
     val brand: String,
     val year: Int,
