@@ -17,6 +17,7 @@ import com.example.tp3_petshop.views.BestSellerView
 import com.example.tp3_petshop.views.ChangeEmailView
 import com.example.tp3_petshop.views.ChangePasswordView
 import com.example.tp3_petshop.views.ChoosePaymentView
+import com.example.tp3_petshop.views.CreateVehicleView
 import com.example.tp3_petshop.views.FaqView
 import com.example.tp3_petshop.views.HomeScreen
 import com.example.tp3_petshop.views.NotificationView
@@ -98,6 +99,9 @@ class MainActivity : ComponentActivity() {
                                 navController.navigate(value)
                             }
                         )
+                    }
+                    composable("createVehicle") {
+                        CreateVehicleView(navController)
                     }
                     composable("faqView") {
                         FaqView (

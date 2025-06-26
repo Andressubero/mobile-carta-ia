@@ -9,10 +9,6 @@ data class IsFirstStateResponse(
     val isFirst: Boolean,
 )
 
-data class VehicleRequest(
-    val id: String,
-)
-
 data class CartProductRequest(
     val id: Int,
     val quantity: Int
