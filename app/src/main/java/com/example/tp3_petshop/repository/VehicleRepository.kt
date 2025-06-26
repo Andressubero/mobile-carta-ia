@@ -3,15 +3,25 @@ package com.example.tp3_petshop.repository
 import com.example.tp3_petshop.models.Vehicle
 import com.example.tp3_petshop.models.VehicleDetail
 import com.example.tp3_petshop.models.VehicleRequest
+import com.example.tp3_petshop.models.VehicleResponse
+import com.example.tp3_petshop.models.VehicleType
 import com.example.tp3_petshop.network.RetrofitInstance
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class VehicleRepository @Inject constructor() {
+    suspend fun createVehicle(request: VehicleRequest): Result<VehicleResponse> {
+        return try {
+            val response = RetrofitInstance.vehicleService.createVehicle(request)
+            Result.success(response)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 
-    suspend fun createVehicle(request: VehicleRequest): Vehicle {
-        return RetrofitInstance.vehicleService.createVehicle(request)
+    suspend fun getVehicleTypes(): List<VehicleType> {
+        return RetrofitInstance.vehicleService.getVehicleTypes().vehicle_types
     }
 
     suspend fun getVehicleById(id: String): Vehicle {
@@ -24,6 +34,19 @@ class VehicleRepository @Inject constructor() {
 
     suspend fun getAll(): List<Vehicle> {
         return RetrofitInstance.vehicleService.getAll()
+    }
+
+    suspend fun deleteVehicle(id: String): Result<Unit> {
+        return try {
+            val response = RetrofitInstance.vehicleService.deleteVehicle(id)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
 }

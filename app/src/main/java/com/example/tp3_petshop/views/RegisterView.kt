@@ -17,13 +17,22 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tp3_petshop.components.ButtonAuthComp
 import com.example.tp3_petshop.components.FormAuth
+import com.example.tp3_petshop.models.Login
+import com.example.tp3_petshop.models.Register
+import com.example.tp3_petshop.network.RetrofitInstance
 import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
 fun RegisterView(navController: NavController? = null) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
+    var registerError by remember { mutableStateOf(false) }
+    var registerMessage by remember { mutableStateOf("") }
 
     val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && password == confirmPassword
 
@@ -85,11 +94,42 @@ fun RegisterView(navController: NavController? = null) {
             ButtonAuthComp(
                 text = "Registrarse",
                 onClick = {
-                    // Implementar lógica de registro si se desea
-                    navController?.navigate("login")
+                    if (isButtonEnabled) {
+                        registerError = false
+                        CoroutineScope(Dispatchers.Main).launch {
+                            try {
+                                val response = withContext(Dispatchers.IO) {
+                                    RetrofitInstance.authService.register(
+                                        Register(username = email, email = email, password = password)
+                                    )
+                                }
+
+                                if (response.success) {
+                                    navController?.navigate("login")
+                                } else {
+                                    registerMessage = response.message
+                                    registerError = true
+                                }
+
+                            } catch (e: Exception) {
+                                registerMessage = "Error al registrar usuario"
+                                registerError = true
+                            }
+                        }
+                    }
                 },
                 enabled = isButtonEnabled
             )
+
+            if (registerError) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = registerMessage,
+                    color = Color.Red,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 

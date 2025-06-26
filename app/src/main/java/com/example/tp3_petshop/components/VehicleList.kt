@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +54,7 @@ fun VehicleList(
                 columns = GridCells.Fixed(1),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxHeight()
+                modifier = Modifier.fillMaxHeight().weight(1f)
             ) {
                 items(vehicles) { state ->
                     VehicleCard(
@@ -61,6 +62,15 @@ fun VehicleList(
                         onDetailClick = { navController.navigate("vehicleStateForm/${state.id}") },
                     )
                 }
+            }
+
+            Button(
+                onClick = {
+                    navController.navigate("createVehicle")
+                },
+                enabled = true
+            ) {
+                Text("Crear un Vehículo")
             }
         }
 }

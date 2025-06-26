@@ -1,11 +1,14 @@
 package com.example.tp3_petshop.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tp3_petshop.models.Vehicle
 import com.example.tp3_petshop.models.VehicleDetail
 import com.example.tp3_petshop.models.VehicleRequest
+import com.example.tp3_petshop.models.VehicleResponse
+import com.example.tp3_petshop.models.VehicleType
 import com.example.tp3_petshop.repository.VehicleRepository
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,11 +28,22 @@ class VehicleViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
-
+    private val _createResult = MutableStateFlow<Result<VehicleResponse>?>(null)
+    val createResult: StateFlow<Result<VehicleResponse>?> = _createResult
 
     fun createVehicle(request: VehicleRequest) = viewModelScope.launch {
-        repository.createVehicle(request)
-        getById(request.id)
+        _createResult.value = repository.createVehicle(request)
+    }
+
+    private val _vehicleTypes = MutableStateFlow<List<VehicleType>>(emptyList())
+    val vehicleTypes: StateFlow<List<VehicleType>> = _vehicleTypes
+
+    fun fetchVehicleTypes() = viewModelScope.launch {
+        try {
+            _vehicleTypes.value = repository.getVehicleTypes()
+        } catch (e: Exception) {
+            Log.e("VehicleViewModel", "Error cargando tipos de vehículo", e)
+        }
     }
 
     fun getVehicleWithPartsById(id: String) = viewModelScope.launch {
@@ -48,8 +62,11 @@ class VehicleViewModel @Inject constructor(
     }
 
     fun getAll() = viewModelScope.launch{
-        _vehicles.value = repository.getAll();
+        _vehicles.value = repository.getAll()
     }
 
-
+    fun deleteVehicle(id: String) = viewModelScope.launch {
+        repository.deleteVehicle(id)
+        getAll()
+    }
 }

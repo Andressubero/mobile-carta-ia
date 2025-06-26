@@ -11,25 +11,38 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tp3_petshop.models.Vehicle
+import com.example.tp3_petshop.viewmodel.VehicleViewModel
 
 @Composable
 fun VehicleCard(
     vehicle: Vehicle,
     onDetailClick: () -> Unit,
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    val viewModel: VehicleViewModel = hiltViewModel()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -78,6 +91,33 @@ fun VehicleCard(
                 IconButton(onClick = onDetailClick) {
                     Icon(Icons.Default.Info, contentDescription = "Ver detalle")
                 }
+                IconButton(onClick = {showDialog = true} ) {
+                    Icon(Icons.Default.Delete, contentDescription = "Eliminar")
+                }
+            }
+
+            if (showDialog) {
+                AlertDialog(
+                    onDismissRequest = { showDialog = false },
+                    title = { Text("Confirmar eliminación") },
+                    text = { Text("¿Está seguro que desea eliminar el vehículo?") },
+                    confirmButton = {
+                        TextButton(onClick = {
+                            showDialog = false
+                            viewModel.deleteVehicle(vehicle.id)
+                            viewModel.getAll()
+                        }) {
+                            Text("Aceptar")
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = {
+                            showDialog = false
+                        }) {
+                            Text("Cancelar")
+                        }
+                    }
+                )
             }
         }
     }

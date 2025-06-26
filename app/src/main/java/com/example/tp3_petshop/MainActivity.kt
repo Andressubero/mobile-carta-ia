@@ -108,7 +108,9 @@ class MainActivity : ComponentActivity() {
                     composable("securityView") {
                         SecurityView { navController.navigate(it) }
                     }
-
+                    composable("createVehicle") {
+                        CreateVehicleView(navController)
+                    }
                     composable("faqView") {
                         FaqView { navController.navigate(it) }
                     }
