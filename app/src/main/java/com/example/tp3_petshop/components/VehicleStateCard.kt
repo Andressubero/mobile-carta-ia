@@ -11,7 +11,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.tp3_petshop.models.VehicleState
 @Composable
 fun VehicleStateCard(
@@ -23,7 +26,6 @@ fun VehicleStateCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(IntrinsicSize.Min)
             .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = Color(0xFFF8F8F8)),
@@ -31,51 +33,60 @@ fun VehicleStateCard(
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
+                .fillMaxWidth()
+                .height(140.dp)
                 .padding(12.dp)
         ) {
             Column(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight(),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
                     text = "Marca: ${vehicle.vehicle_brand}",
-                    style = MaterialTheme.typography.titleMedium
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
                 Text(
                     text = "Modelo: ${vehicle.vehicle_model}",
-                    style = MaterialTheme.typography.bodyMedium
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Gray
                 )
                 Text(
                     text = "Creado: ${vehicle.creation_date.substring(0, 10)}",
-                    style = MaterialTheme.typography.bodySmall
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Normal,
+                    color = Color.Gray
                 )
                 Text(
                     text = "Estado: ${vehicle.validation_state}",
-                    style = MaterialTheme.typography.bodySmall,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
                     color = if (vehicle.validation_state == "APROBADA") Color(0xFF2E7D32) else Color(0xFFD32F2F)
                 )
             }
 
             Column(
                 modifier = Modifier
-                    .padding(start = 12.dp)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.SpaceEvenly,
+                    .fillMaxHeight()
+                    .padding(start = 8.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                IconButton(onClick = onDetailClick) {
-                    Icon(Icons.Default.Info, contentDescription = "Ver detalle")
+                IconButton(onClick = onDetailClick, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.Info, contentDescription = "Ver detalle", modifier = Modifier.size(20.dp))
                 }
-                IconButton(onClick = onReportClick) {
-                    Icon(Icons.Default.Build, contentDescription = "Ver reporte")
+                IconButton(onClick = onReportClick, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.Build, contentDescription = "Ver reporte", modifier = Modifier.size(20.dp))
                 }
-                IconButton(onClick = onChangeStatusClick) {
-                    Icon(Icons.Default.Add, contentDescription = "Cambiar estado")
+                IconButton(onClick = onChangeStatusClick, modifier = Modifier.size(28.dp)) {
+                    Icon(Icons.Default.Add, contentDescription = "Cambiar estado", modifier = Modifier.size(20.dp))
                 }
             }
         }
     }
 }
+

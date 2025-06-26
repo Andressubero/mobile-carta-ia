@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -17,6 +19,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,13 +43,12 @@ fun VehicleStateList(
 
     when {
         states.isEmpty() && error == null -> {
-            // Estado inicial: cargando
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
         }
+
         error != null -> {
-            // Error al cargar con botón para reintentar
             Box(
                 Modifier
                     .fillMaxSize()
@@ -62,29 +64,39 @@ fun VehicleStateList(
                 }
             }
         }
+
         else -> {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
+                // Encabezado decorado
                 Box(
                     modifier = Modifier
-                        .clickable { navController.navigate("bestSellerView") }
-                        .padding(bottom = 16.dp)
+                        .fillMaxWidth()
+                        .padding(top = 12.dp, bottom = 16.dp)
+                        .background(Color(0xFFF1F1F1), shape = MaterialTheme.shapes.medium)
+                        .padding(horizontal = 20.dp, vertical = 14.dp),
+                    contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Cartas de daño registradas",
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.headlineSmall
+                        text = "Cartas de daño registradas 🚗",
+                        style = MaterialTheme.typography.headlineSmall.copy(
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold
+                        )
                     )
                 }
 
+                // Cards
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(1),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxHeight()
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(bottom = 24.dp)
                 ) {
                     items(states) { state ->
                         VehicleStateCard(
@@ -99,4 +111,3 @@ fun VehicleStateList(
         }
     }
 }
-

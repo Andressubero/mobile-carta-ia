@@ -7,7 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -20,50 +22,42 @@ import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
 
 @Composable
 fun SplashView(onGetStartedClick: () -> Unit = {}) {
-    Scaffold { innerPadding ->
+    // Gradient background
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(brush = gradient),
+        contentAlignment = Alignment.Center
+    ) {
         Column(
             modifier = Modifier
-                .padding(innerPadding)
-                .padding(horizontal = 24.dp)
-                .background(Color.White)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.SpaceBetween,
+                .padding(24.dp)
+                .background(Color.White, shape = MaterialTheme.shapes.medium)
+                .padding(24.dp)
+                .wrapContentHeight(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(modifier = Modifier.height(40.dp))
-
-            Text(
-                text = "Meet your animal needs here",
-                fontSize = 44.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Left,
-                lineHeight = 50.sp,
-                modifier = Modifier.padding(20.dp)
-            )
-
             Image(
-                painter = painterResource(id = R.drawable.onboarding_dog),
-                contentDescription = null,
+                painter = painterResource(id = R.drawable.logo_bdtglobal),
+                contentDescription = "Logo BDT",
                 modifier = Modifier
-                    .height(380.dp)
-                    .width(500.dp)
+                    .size(220.dp), // o el tamaño que desees
+                contentScale = ContentScale.Fit // Podés probar también Crop
             )
 
             Text(
-                text = "Get interesting promos here, register your account immediately so you can meet your animal needs.",
-                fontSize = 18.sp,
-                textAlign = TextAlign.Left,
-                modifier = Modifier.padding(horizontal = 16.dp),
-                color = Color.Gray
+                text = "Carta de Daño IA",
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Medium,
+                color = Color.Black,
+                textAlign = TextAlign.Center
             )
 
-            Image(
-                painter = painterResource(id = R.drawable.three_buttons),
-                contentDescription = null,
-                modifier = Modifier
-                    .height(50.dp)
-                    .width(90.dp)
-            )
+            Spacer(modifier = Modifier.height(32.dp))
 
             ButtonAuthComp(
                 text = "Get Started",

@@ -4,41 +4,16 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavType
+import androidx.navigation.compose.*
+import com.example.tp3_petshop.components.BottomNavBar
 import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.example.tp3_petshop.views.AccountView
-import com.example.tp3_petshop.views.BestSellerView
-import com.example.tp3_petshop.views.ChangeEmailView
-import com.example.tp3_petshop.views.ChangePasswordView
-import com.example.tp3_petshop.views.ChoosePaymentView
-import com.example.tp3_petshop.views.FaqView
-import com.example.tp3_petshop.views.HomeScreen
-import com.example.tp3_petshop.views.NotificationView
-import com.example.tp3_petshop.views.PrivacyView
-import com.example.tp3_petshop.views.ProfileView
-import com.example.tp3_petshop.views.ProfileViewSellerMode
-import com.example.tp3_petshop.views.SecurityView
-import com.example.tp3_petshop.views.SettingsView
-import com.example.tp3_petshop.views.LoginView
-import com.example.tp3_petshop.views.SplashView
-import com.example.tp3_petshop.views.RegisterView
-import com.example.tp3_petshop.views.DetailView
-import com.example.tp3_petshop.views.NotificationsListView
-import com.example.tp3_petshop.views.PaymentMethodConfigView
-import com.example.tp3_petshop.views.PaymentSuccessView
-import com.example.tp3_petshop.views.ReportView
-import com.example.tp3_petshop.views.SearchView
-import com.example.tp3_petshop.views.VehicleStateFormFirstStepView
-import com.example.tp3_petshop.views.VehicleStateFormSecondStepView
-import com.example.tp3_petshop.views.VehicleStateFormView
-import com.example.tp3_petshop.views.VehiclesStateFormThirdStepView
-import com.example.tp3_petshop.views.VehiclesView
+import com.example.tp3_petshop.views.*
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -49,148 +24,161 @@ class MainActivity : ComponentActivity() {
         setContent {
             TP3PETSHOPTheme {
                 val navController = rememberNavController()
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentRoute = navBackStackEntry?.destination?.route ?: ""
+
                 NavHost(navController = navController, startDestination = "initial") {
                     composable("initial") {
-                        SplashView(
-                            onGetStartedClick = {
-                                navController.navigate("login")
+                        SplashView(onGetStartedClick = {
+                            navController.navigate("login")
+                        })
+                    }
+
+                    composable("login") { LoginView(navController) }
+                    composable("register") { RegisterView(navController) }
+
+                    // ✅ Pantalla con BottomNavBar
+                    composable("homeScreen") {
+                        Scaffold(
+                            bottomBar = {
+                                BottomNavBar(
+                                    currentRoute = currentRoute,
+                                    onNavigate = { route ->
+                                        navController.navigate(route) {
+                                            popUpTo("homeScreen") { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
                             }
-                        )
+                        ) {
+                            HomeScreen(navController)
+                        }
                     }
-                    composable("login") {
-                        LoginView(navController)
+
+                    composable("vehiclesView") {
+                        Scaffold(
+                            bottomBar = {
+                                BottomNavBar(
+                                    currentRoute = currentRoute,
+                                    onNavigate = { route ->
+                                        navController.navigate(route) {
+                                            popUpTo("homeScreen") { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
+                            }
+                        ) {
+                            VehiclesView(navController)
+                        }
                     }
-                    composable("register") {
-                        RegisterView(navController)
-                    }
-                    composable("profileViewSellerMode") {
-                        ProfileViewSellerMode(
-                            fun (route: String){
-                                navController.navigate(route)
-                            },
-                        )
-                    }
+
                     composable("profileView") {
-                        ProfileView(
-                            fun(route: String) {
-                                navController.navigate(route)
+                        Scaffold(
+                            bottomBar = {
+                                BottomNavBar(
+                                    currentRoute = currentRoute,
+                                    onNavigate = { route ->
+                                        navController.navigate(route) {
+                                            popUpTo("homeScreen") { inclusive = false }
+                                            launchSingleTop = true
+                                        }
+                                    }
+                                )
                             }
-                        )
+                        ) {
+                            ProfileView { route -> navController.navigate(route) }
+                        }
                     }
+
+                    // Resto de pantallas sin BottomNavBar
+                    composable("profileViewSellerMode") {
+                        ProfileViewSellerMode { route -> navController.navigate(route) }
+                    }
+
                     composable("settingsView") {
-                        SettingsView(
-                            fun(value: String) {
-                                navController.navigate(value)
-                            },
-                            fun() {}
-                        )
+                        SettingsView({ navController.navigate(it) }, {})
                     }
+
                     composable("privacyView") {
-                        PrivacyView (
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        PrivacyView { navController.navigate(it) }
                     }
+
                     composable("securityView") {
-                        SecurityView (
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        SecurityView { navController.navigate(it) }
                     }
+
                     composable("faqView") {
-                        FaqView (
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        FaqView { navController.navigate(it) }
                     }
+
                     composable("notificationSettingView") {
-                        NotificationView (
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        NotificationView { navController.navigate(it) }
                     }
+
                     composable("notificationView") {
                         NotificationsListView(navController)
                     }
 
                     composable("accountView") {
-                        AccountView(
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        AccountView { navController.navigate(it) }
                     }
-                    composable("homeScreen") {
-                        HomeScreen(navController)
-                    }
+
                     composable("detail/{id}") { backStackEntry ->
-                        val id = backStackEntry.arguments?.getString("id")
-                        if (id != null) {
+                        backStackEntry.arguments?.getString("id")?.let { id ->
                             DetailView(stateId = id, navController = navController)
                         }
                     }
 
-
                     composable("changePasswordView") {
-                        ChangePasswordView(
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        ChangePasswordView { navController.navigate(it) }
                     }
+
                     composable("changeEmailView") {
-                        ChangeEmailView(
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        ChangeEmailView { navController.navigate(it) }
                     }
+
                     composable("paymentMethodConfigView") {
-                        PaymentMethodConfigView(
-                            fun(value: String) {
-                                navController.navigate(value)
-                            }
-                        )
+                        PaymentMethodConfigView { navController.navigate(it) }
                     }
+
                     composable("payment") {
                         ChoosePaymentView(navController)
                     }
+
                     composable("paysuccess") {
                         PaymentSuccessView(navController)
                     }
+
                     composable("searchView") {
-                        SearchView(
-                            navController
-                        )
+                        SearchView(navController)
                     }
+
                     composable("bestSellerView") {
-                        BestSellerView(
-                            navController
-                        )
+                        BestSellerView(navController)
                     }
+
                     composable("reportView/{id}") { backStackEntry ->
-                        val id = backStackEntry.arguments?.getString("id")
-                        if (id != null) {
+                        backStackEntry.arguments?.getString("id")?.let { id ->
                             ReportView(reportId = id, navController = navController)
                         }
                     }
+
                     composable("vehicleStateForm/{id}") { backStackEntry ->
                         val id = backStackEntry.arguments?.getString("id")
                         if (id != null) {
                             VehicleStateFormView(vehicleId = id, navController)
-                        }else {
+                        } else {
                             HomeScreen(navController)
                         }
                     }
-                    composable("vehiclesView") {
-                        VehiclesView(
-                           navController = navController
 
-                        )
+                    composable("changeStatus/{id}") { backStackEntry ->
+                        val id = backStackEntry.arguments?.getString("id")
+                        if (id != null) {
+                            ChangeStatusView(vehicleId = id, navController = navController)
+                        }
                     }
                 }
             }
@@ -198,13 +186,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
+    Text(text = "Hello $name!", modifier = modifier)
 }
 
 @Preview(showBackground = true)
