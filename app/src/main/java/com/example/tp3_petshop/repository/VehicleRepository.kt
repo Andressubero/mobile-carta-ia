@@ -36,4 +36,17 @@ class VehicleRepository @Inject constructor() {
         return RetrofitInstance.vehicleService.getAll()
     }
 
+    suspend fun deleteVehicle(id: String): Result<Unit> {
+        return try {
+            val response = RetrofitInstance.vehicleService.deleteVehicle(id)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Error ${response.code()}"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
 }

@@ -64,4 +64,9 @@ class VehicleViewModel @Inject constructor(
     fun getAll() = viewModelScope.launch{
         _vehicles.value = repository.getAll()
     }
+
+    fun deleteVehicle(id: String) = viewModelScope.launch {
+        repository.deleteVehicle(id)
+        getAll()
+    }
 }

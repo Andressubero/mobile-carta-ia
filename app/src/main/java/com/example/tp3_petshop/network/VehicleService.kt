@@ -5,9 +5,11 @@ import com.example.tp3_petshop.models.VehicleDetail
 import com.example.tp3_petshop.models.VehicleRequest
 import com.example.tp3_petshop.models.VehicleResponse
 import com.example.tp3_petshop.models.VehicleTypeResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 interface VehicleService {
@@ -25,4 +27,7 @@ interface VehicleService {
 
     @GET("/vehicle/myVehicles")
     suspend fun getAll(): List<Vehicle>
+
+    @PUT("/vehicle/delete/{id}")
+    suspend fun deleteVehicle(@Path("id") id: String): Response<Unit>
 }
