@@ -3,10 +3,9 @@ package com.example.tp3_petshop.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Login(
+data class LoginRequest(
     val username: String,
     val password: String,
-    val expiresInMins: Int = 30
 )
 
 @Serializable

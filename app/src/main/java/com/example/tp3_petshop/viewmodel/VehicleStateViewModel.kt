@@ -24,6 +24,7 @@ import javax.inject.Inject
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.BlobDataPart
 import com.github.kittinunf.fuel.core.LazyDataPart
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 
@@ -87,18 +88,11 @@ class VehicleStateViewModel @Inject constructor(
         }
     }
 
-    fun addSide(side: String) {
+    fun addSides(sides: List<String>) {
         _sides.update { currentList ->
-            if (side !in currentList) {
-                currentList + side
-            } else {
-                currentList
-            }
+            val nuevos = sides.filterNot { it in currentList }
+            currentList + nuevos
         }
-    }
-
-    init {
-        getAll()
     }
 
     fun getAll() {
@@ -106,9 +100,15 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.getAll()
                 if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data != null) {
-                        _vehicleStates.value = data
+                    val json = response.body()?.string()
+
+                    if (json != null) {
+                        // 🧠 Gson parse manual
+                        val gson = Gson()
+                        val type = object : TypeToken<List<VehicleState>>() {}.type
+                        val list: List<VehicleState> = gson.fromJson(json, type)
+
+                        _vehicleStates.value = list
                         _errorMessage.value = null
                     } else {
                         _errorMessage.value = "Error: cuerpo vacío inesperado"
@@ -117,10 +117,12 @@ class VehicleStateViewModel @Inject constructor(
                     _errorMessage.value = "Error ${response.code()}: ${response.message()}"
                 }
             } catch (e: Exception) {
+                println("Error parseando JSON manualmente: ${e.message}")
                 _errorMessage.value = "Exception: ${e.message}"
             }
         }
     }
+
 
     fun createVehicleState(
         vehicleId: String,
@@ -178,8 +180,6 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.isFirstState(id)
                 if (response.isSuccessful) {
-                    var body = response.body()
-                    println("🧩 estado filtrado → $body")
                     _isFirst.value = response.body()?.isFirst == true
                     _errorMessage.value = null
                 } else {

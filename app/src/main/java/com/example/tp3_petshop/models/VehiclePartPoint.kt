@@ -11,7 +11,7 @@ data class PartPosition(
     val side: String
 )
 
-enum class DamageType { ABOLLADURA, RAYON, OTRO, SIN_DANO }
+enum class DamageType { ABOLLADURA, RAYON, OTRO, SIN_DANO, ROTURA }
 
 data class DamagePoint(
     @SerializedName("damage_type") val damageType: DamageType,

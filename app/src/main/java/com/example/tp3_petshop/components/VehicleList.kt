@@ -30,9 +30,6 @@ fun VehicleList(
     navController: NavController,
     vehicles: List<Vehicle>,
 ) {
-        if (vehicles.isEmpty()) {
-            Text("Aún no tienes vehículos creados")
-        }
 
         Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
             Box(
@@ -43,11 +40,20 @@ fun VehicleList(
                     .padding(horizontal = 16.dp, vertical = 12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = "Vehículos Registrados",
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineSmall
-                )
+                if (vehicles.isEmpty()) {
+                    Text(text ="Aún no tienes vehículos creados",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+                } else {
+                    Text(
+                        text = "Vehículos Registrados",
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
+                }
+
             }
 
             LazyVerticalGrid(
@@ -70,7 +76,11 @@ fun VehicleList(
                 },
                 enabled = true
             ) {
-                Text("Crear un Vehículo")
+                Text(
+                    text = "Crear un vehículo",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall
+                )
             }
         }
 }

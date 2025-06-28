@@ -78,7 +78,7 @@ class VehicleStateRepository @Inject constructor(
     }
 
 
-    suspend fun getAll(): Response<List<VehicleState>> {
+    suspend fun getAll(): Response<ResponseBody> {
         return RetrofitInstance.vehicleStateService.getAll()
     }
 

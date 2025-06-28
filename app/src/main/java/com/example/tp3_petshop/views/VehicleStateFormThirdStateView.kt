@@ -40,9 +40,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.tp3_petshop.R
-import com.example.tp3_petshop.models.DamagePoint
-import com.example.tp3_petshop.models.DamageType
-import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
@@ -65,6 +62,7 @@ fun VehiclesStateFormThirdStepView(
     var currentSideKey by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
+        println("--------------Sides-------$sides")
         if (vehicle == null) {
             vehicleViewModel.getVehicleWithPartsById(vehicleId)
         }

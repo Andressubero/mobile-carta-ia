@@ -15,13 +15,13 @@ import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.PartMap
 import retrofit2.http.Path
+import retrofit2.http.Streaming
 
 interface VehicleStateService {
-    @POST("/vehicle-state/create")
-    suspend fun createState(@Body request: VehicleStateRequest): Response<VehicleState>
 
     @GET("/vehicle-state/get-all")
-    suspend fun getAll(): Response<List<VehicleState>>
+    @Streaming
+    suspend fun getAll(): Response<ResponseBody>
 
     @GET("/vehicle-state/is-first-state/{id}")
     suspend fun isFirstState(@Path("id") id: String): Response<IsFirstStateResponse>

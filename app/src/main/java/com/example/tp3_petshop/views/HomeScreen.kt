@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,6 +51,7 @@ import com.example.tp3_petshop.components.BottomNavBar
 import com.example.tp3_petshop.components.LocationTopBar
 import com.example.tp3_petshop.components.TabsButton
 import com.example.tp3_petshop.models.ButtonOption
+import com.example.tp3_petshop.viewmodel.AuthViewModel
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -65,7 +67,8 @@ val optionsHomeScreen = listOf(
 @Composable
 fun HomeScreen(
     navController: NavController,
-    viewModel: VehicleStateViewModel = hiltViewModel()
+    viewModel: VehicleStateViewModel,
+    authViewModel: AuthViewModel
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -74,6 +77,7 @@ fun HomeScreen(
 
     val isRefreshing by viewModel.isLoading.collectAsState()
     val swipeRefreshState = rememberSwipeRefreshState(isRefreshing = isRefreshing)
+
 
     val gradient = Brush.verticalGradient(
         colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
@@ -113,7 +117,7 @@ fun HomeScreen(
                             .clip(RoundedCornerShape(16.dp))
                             .padding(16.dp)
                     ) {
-                        VehicleStateList(navController = navController)
+                        VehicleStateList(navController = navController, viewModel = viewModel, authViewModel = authViewModel)
                     }
                 }
             }

@@ -1,13 +1,14 @@
 package com.example.tp3_petshop.views
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
-import java.util.*
 
 
 @Composable
@@ -30,7 +31,7 @@ fun VehicleStateFormView(
 
         2 -> VehicleStateFormSecondStepView(
             vehicleId = vehicleId,
-            onBack = { currentStep = 2 },
+            onBack = { currentStep = 1 },
             onNext =  { currentStep = 3 },
             viewModel = viewModel,
             vehicleViewModel = vehicleViewModel)

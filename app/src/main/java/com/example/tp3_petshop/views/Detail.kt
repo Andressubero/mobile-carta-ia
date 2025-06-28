@@ -41,10 +41,12 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 fun DetailView(
     stateId: String,
     navController: NavController,
-    viewModel: VehicleStateViewModel = hiltViewModel()
+    viewModel: VehicleStateViewModel,
 ) {
     val states by viewModel.vehicleStates.collectAsState()
     val vehicle = states.find { it.id == stateId }
+
+
 
     if (vehicle != null) {
         Scaffold { innerPadding ->
