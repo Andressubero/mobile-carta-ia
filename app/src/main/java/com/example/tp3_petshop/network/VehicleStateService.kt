@@ -19,12 +19,15 @@ import retrofit2.http.Streaming
 
 interface VehicleStateService {
 
-    @GET("/vehicle-state/get-all")
+    @GET("/vehicle-state/get-all-summary")
     @Streaming
-    suspend fun getAll(): Response<ResponseBody>
+    suspend fun getAll(): Response<List<VehicleState>>
 
     @GET("/vehicle-state/is-first-state/{id}")
     suspend fun isFirstState(@Path("id") id: String): Response<IsFirstStateResponse>
+
+    @GET("/vehicle-state/get-by-id/{id}")
+    suspend fun getById(@Path("id") id: String): Response<VehicleState>
 
     @POST("/vehicle-state/change-state")
     suspend fun changeState(

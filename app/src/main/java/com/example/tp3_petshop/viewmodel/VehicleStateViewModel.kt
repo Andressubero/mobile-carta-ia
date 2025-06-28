@@ -43,6 +43,9 @@ class VehicleStateViewModel @Inject constructor(
     private val _isFirst = MutableStateFlow<Boolean>(false)
     val isFirst: StateFlow<Boolean> = _isFirst
 
+    private val _stateDetail = MutableStateFlow<VehicleState?>(null)
+    val stateDetail: StateFlow<VehicleState?> = _stateDetail
+
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
@@ -100,24 +103,16 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.getAll()
                 if (response.isSuccessful) {
-                    val json = response.body()?.string()
-
-                    if (json != null) {
-                        // 🧠 Gson parse manual
-                        val gson = Gson()
-                        val type = object : TypeToken<List<VehicleState>>() {}.type
-                        val list: List<VehicleState> = gson.fromJson(json, type)
-
-                        _vehicleStates.value = list
-                        _errorMessage.value = null
-                    } else {
-                        _errorMessage.value = "Error: cuerpo vacío inesperado"
+                    response.body()?.let { responseBody ->
+                        _vehicleStates.value = responseBody
+                    } ?: run {
+                        _errorMessage.value = "El cuerpo de la respuesta está vacío"
                     }
                 } else {
                     _errorMessage.value = "Error ${response.code()}: ${response.message()}"
                 }
             } catch (e: Exception) {
-                println("Error parseando JSON manualmente: ${e.message}")
+                println("Error en getAll: ${e.message}")
                 _errorMessage.value = "Exception: ${e.message}"
             }
         }
@@ -181,6 +176,21 @@ class VehicleStateViewModel @Inject constructor(
                 val response = repository.isFirstState(id)
                 if (response.isSuccessful) {
                     _isFirst.value = response.body()?.isFirst == true
+                    _errorMessage.value = null
+                } else {
+                    _errorMessage.value = "Error al actualizar estado: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Exception: ${e.message}"
+            }
+        }
+    }
+    fun getById(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getById(id)
+                if (response.isSuccessful) {
+                    _stateDetail.value = response.body()
                     _errorMessage.value = null
                 } else {
                     _errorMessage.value = "Error al actualizar estado: ${response.code()}"

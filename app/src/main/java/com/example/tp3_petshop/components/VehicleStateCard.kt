@@ -56,7 +56,7 @@ fun VehicleStateCard(
                     color = Color.Gray
                 )
                 Text(
-                    text = "Creado: ${vehicle.creation_date.substring(0, 10)}",
+                    text = "Creado: ${vehicle.creation_date?.substring(0, 10)}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray

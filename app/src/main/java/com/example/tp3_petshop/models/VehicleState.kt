@@ -1,30 +1,31 @@
 package com.example.tp3_petshop.models
 
 data class VehicleState(
-    val creation_date: String,
-    val declared_date: String,
-    val id: String,
-    val parts_state: List<PartState>,
-    val validation_reasons: String,
-    val validation_state: String,
-    val vehicle_brand: String,
-    val vehicle_id: String,
-    val vehicle_model: String
+    val creation_date: String? = "No provisto",
+    val declared_date: String? = "No provisto",
+    val id: String? = "No provisto",
+    val parts_state: List<PartState>? = emptyList(),
+    val validation_reasons: String? = "No provisto",
+    val validation_state: String? = "No provisto",
+    val vehicle_brand: String? = "No provisto",
+    val vehicle_id: String? = "No provisto",
+    val vehicle_model: String? = "No provisto"
 )
 
 data class PartState(
-    val creation_date: String,
-    val damages: List<Damage>,
-    val id: String,
-    val image: String,
-    val vehicle_part_id: String,
-    val vehicle_part_name: String
+    val creation_date: String? = "No provisto",
+    val damages: List<Damage>? = emptyList(),
+    val id: String? = "No provisto",
+    val image: String? = "No provisto",
+    val vehicle_part_id: String? = "No provisto",
+    val vehicle_part_name: String? = "No provisto"
 )
 
 data class Damage(
-    val damage_type: String,
-    val description: String,
-    val fixed: Boolean,
-    val id: String
+    val damage_type: String? = "No provisto",
+    val description: String? = "No provisto",
+    val fixed: Boolean? = false,
+    val id: String? = "No provisto"
 )
+
 
