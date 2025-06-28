@@ -88,7 +88,7 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                         ) {
-                            ProfileView { route -> navController.navigate(route) }
+                            ProfileView(navController)
                         }
                     }
 

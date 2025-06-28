@@ -2,6 +2,7 @@ package com.example.tp3_petshop.network
 
 import com.example.tp3_petshop.models.Login
 import com.example.tp3_petshop.models.LoginResponse
+import com.example.tp3_petshop.models.LogoutResponse
 import com.example.tp3_petshop.models.Register
 import com.example.tp3_petshop.models.RegisterResponse
 import retrofit2.http.Body
@@ -17,4 +18,7 @@ interface AuthService {
 
     @GET("user/me")
     suspend fun getMe(@Body request: Login): LoginResponse
+
+    @POST("user/logout")
+    suspend fun logout(): LogoutResponse
 }

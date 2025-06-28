@@ -16,3 +16,7 @@ data class LoginResponse(
     val username: String,
     val email: String? = null
 )
+
+data class LogoutResponse(
+    val message: String
+)
