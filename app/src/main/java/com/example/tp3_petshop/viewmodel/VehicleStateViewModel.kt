@@ -24,6 +24,7 @@ import javax.inject.Inject
 import com.github.kittinunf.fuel.core.Method
 import com.github.kittinunf.fuel.core.BlobDataPart
 import com.github.kittinunf.fuel.core.LazyDataPart
+import com.google.gson.reflect.TypeToken
 import dagger.hilt.android.qualifiers.ApplicationContext
 
 
@@ -41,6 +42,9 @@ class VehicleStateViewModel @Inject constructor(
 
     private val _isFirst = MutableStateFlow<Boolean>(false)
     val isFirst: StateFlow<Boolean> = _isFirst
+
+    private val _stateDetail = MutableStateFlow<VehicleState?>(null)
+    val stateDetail: StateFlow<VehicleState?> = _stateDetail
 
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
@@ -87,18 +91,11 @@ class VehicleStateViewModel @Inject constructor(
         }
     }
 
-    fun addSide(side: String) {
+    fun addSides(sides: List<String>) {
         _sides.update { currentList ->
-            if (side !in currentList) {
-                currentList + side
-            } else {
-                currentList
-            }
+            val nuevos = sides.filterNot { it in currentList }
+            currentList + nuevos
         }
-    }
-
-    init {
-        getAll()
     }
 
     fun getAll() {
@@ -106,21 +103,21 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.getAll()
                 if (response.isSuccessful) {
-                    val data = response.body()
-                    if (data != null) {
-                        _vehicleStates.value = data
-                        _errorMessage.value = null
-                    } else {
-                        _errorMessage.value = "Error: cuerpo vacío inesperado"
+                    response.body()?.let { responseBody ->
+                        _vehicleStates.value = responseBody
+                    } ?: run {
+                        _errorMessage.value = "El cuerpo de la respuesta está vacío"
                     }
                 } else {
                     _errorMessage.value = "Error ${response.code()}: ${response.message()}"
                 }
             } catch (e: Exception) {
+                println("Error en getAll: ${e.message}")
                 _errorMessage.value = "Exception: ${e.message}"
             }
         }
     }
+
 
     fun createVehicleState(
         vehicleId: String,
@@ -178,9 +175,22 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.isFirstState(id)
                 if (response.isSuccessful) {
-                    var body = response.body()
-                    println("🧩 estado filtrado → $body")
                     _isFirst.value = response.body()?.isFirst == true
+                    _errorMessage.value = null
+                } else {
+                    _errorMessage.value = "Error al actualizar estado: ${response.code()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Exception: ${e.message}"
+            }
+        }
+    }
+    fun getById(id: String) {
+        viewModelScope.launch {
+            try {
+                val response = repository.getById(id)
+                if (response.isSuccessful) {
+                    _stateDetail.value = response.body()
                     _errorMessage.value = null
                 } else {
                     _errorMessage.value = "Error al actualizar estado: ${response.code()}"

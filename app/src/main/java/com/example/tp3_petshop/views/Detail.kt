@@ -41,12 +41,19 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 fun DetailView(
     stateId: String,
     navController: NavController,
-    viewModel: VehicleStateViewModel = hiltViewModel()
+    viewModel: VehicleStateViewModel,
 ) {
-    val states by viewModel.vehicleStates.collectAsState()
-    val vehicle = states.find { it.id == stateId }
+    val stateDetail by viewModel.stateDetail.collectAsState()
 
-    if (vehicle != null) {
+    LaunchedEffect(stateId) {
+        if (!stateId.isEmpty()) {
+            viewModel.getById(stateId);
+        }
+    }
+
+
+
+    stateDetail?.let {
         Scaffold { innerPadding ->
             Box(
                 modifier = Modifier
@@ -76,14 +83,14 @@ fun DetailView(
                     ) {
                         // Datos generales
 //                        Text("ID: ${vehicle.id}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Marca: ${vehicle.vehicle_brand}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Modelo: ${vehicle.vehicle_model}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Fecha de creación: ${vehicle.creation_date.substring(0, 10)}", style = MaterialTheme.typography.bodyMedium)
-                        Text("Fecha de declaración: ${vehicle.declared_date}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Marca: ${stateDetail!!.vehicle_brand}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Modelo: ${stateDetail!!.vehicle_model}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Fecha de creación: ${stateDetail!!.creation_date?.substring(0, 10)}", style = MaterialTheme.typography.bodyMedium)
+                        Text("Fecha de declaración: ${stateDetail!!.declared_date}", style = MaterialTheme.typography.bodyMedium)
                         Text(
-                            "Estado: ${vehicle.validation_state}",
+                            "Estado: ${stateDetail!!.validation_state}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = if (vehicle.validation_state == "APROBADA") Color(0xFF2E7D32) else Color(0xFFD32F2F),
+                            color = if (stateDetail!!.validation_state == "APROBADA") Color(0xFF2E7D32) else Color(0xFFD32F2F),
                             fontWeight = FontWeight.Bold
                         )
 
@@ -91,21 +98,21 @@ fun DetailView(
 
                         // Validación
                         Text("Razones de validación:", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Bold)
-                        Text(vehicle.validation_reasons, style = MaterialTheme.typography.bodySmall)
+                        Text(stateDetail!!.validation_reasons.toString(), style = MaterialTheme.typography.bodySmall)
 
                         Spacer(modifier = Modifier.height(8.dp))
 
                         // Partes del vehículo
                         Text("Partes del vehículo", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                        vehicle.parts_state.forEach { part ->
+                        stateDetail!!.parts_state?.forEach { part ->
                             Column(modifier = Modifier.padding(vertical = 4.dp)) {
                                 Divider(thickness = 0.8.dp, color = Color.Gray)
                                 Text("• ${part.vehicle_part_name}", fontWeight = FontWeight.SemiBold)
-//                                Text("ID: ${part.vehicle_part_id}", fontSize = 12.sp, color = Color.Gray)
+                                //                                Text("ID: ${part.vehicle_part_id}", fontSize = 12.sp, color = Color.Gray)
                                 Text("Imagen: ${part.image}", fontSize = 12.sp, color = Color.Gray)
-                                part.damages.forEach { damage ->
+                                part.damages?.forEach { damage ->
                                     Text(
-                                        "- ${damage.damage_type}: ${damage.description} (${if (damage.fixed) "Reparado" else "Sin reparar"})",
+                                        "- ${damage.damage_type}: ${damage.description} (${if (damage.fixed == true) "Reparado" else "Sin reparar"})",
                                         fontSize = 13.sp
                                     )
                                 }
@@ -116,10 +123,6 @@ fun DetailView(
                     }
                 }
             }
-        }
-    } else {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
         }
     }
 }

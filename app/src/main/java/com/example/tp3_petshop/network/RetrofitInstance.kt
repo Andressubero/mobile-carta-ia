@@ -20,6 +20,7 @@ object RetrofitInstance {
         .connectTimeout(60, TimeUnit.SECONDS) // ⏱ Tiempo para conectar
         .readTimeout(60, TimeUnit.SECONDS)    // ⏱ Tiempo para leer respuesta
         .writeTimeout(60, TimeUnit.SECONDS)   // ⏱ Tiempo para escribir request
+        .retryOnConnectionFailure(true)
         .build()
 
     private val retrofit by lazy {
