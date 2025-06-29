@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.network
 
+import com.example.tp3_petshop.models.ChangePasswordRequest
 import com.example.tp3_petshop.models.LoginRequest
 import com.example.tp3_petshop.models.LoginResponse
 import com.example.tp3_petshop.models.Register
@@ -19,4 +20,10 @@ interface AuthService {
 
     @GET("user/me")
     suspend fun getMe(): Response<User>
+
+    @POST("user/edit-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<String>
+
+    @POST("user/logout")
+    suspend fun logout(): Response<LoginResponse>
 }
