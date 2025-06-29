@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tp3_petshop.models.ChangeStatusRequest
@@ -9,23 +10,13 @@ import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.models.VehicleState
 import com.example.tp3_petshop.repository.VehicleStateRepository
-import com.github.kittinunf.fuel.Fuel
-import com.github.kittinunf.fuel.core.FileDataPart
-import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.io.File
-import android.content.Context
-import java.io.InputStream
 import javax.inject.Inject
-import com.github.kittinunf.fuel.core.Method
-import com.github.kittinunf.fuel.core.BlobDataPart
-import com.github.kittinunf.fuel.core.LazyDataPart
-import com.google.gson.reflect.TypeToken
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 
 @HiltViewModel
@@ -175,7 +166,9 @@ class VehicleStateViewModel @Inject constructor(
             try {
                 val response = repository.isFirstState(id)
                 if (response.isSuccessful) {
-                    _isFirst.value = response.body()?.isFirst == true
+                    var result = response.body()?.isFirst
+                    println("Respuesta del endpoint isFirstState:$result")
+                    _isFirst.value = result == true
                     _errorMessage.value = null
                 } else {
                     _errorMessage.value = "Error al actualizar estado: ${response.code()}"
