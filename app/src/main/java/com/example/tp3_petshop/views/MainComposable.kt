@@ -87,7 +87,7 @@ fun MainComposable(
                         )
                     }
                 ) {
-                    ProfileView { route -> navController.navigate(route) }
+                    ProfileView({ route -> navController.navigate(route) }, authViewModel)
                 }
             }
 

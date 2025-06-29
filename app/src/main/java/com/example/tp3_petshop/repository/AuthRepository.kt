@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.repository
 
+import com.example.tp3_petshop.models.ChangePasswordRequest
 import com.example.tp3_petshop.models.LoginRequest
 import com.example.tp3_petshop.models.LoginResponse
 import com.example.tp3_petshop.models.Register
@@ -23,6 +24,14 @@ class AuthRepository @Inject constructor() {
     }
     suspend fun register(request: Register): Response<RegisterResponse> {
         return RetrofitInstance.authService.register(request)
+    }
+
+    suspend fun changePassword(password: ChangePasswordRequest): Response<String> {
+        return RetrofitInstance.authService.changePassword(password)
+    }
+
+    suspend fun logout(): Response<LoginResponse> {
+        return RetrofitInstance.authService.logout()
     }
 
 }

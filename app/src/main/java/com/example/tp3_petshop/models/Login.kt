@@ -15,3 +15,4 @@ data class LoginResponse(
     val username: String,
     val email: String? = null
 )
+

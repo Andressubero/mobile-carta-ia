@@ -44,6 +44,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import coil.ImageLoader
 import coil.compose.AsyncImage
+import coil.compose.SubcomposeAsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import com.example.tp3_petshop.components.TopBarSection
@@ -72,6 +73,12 @@ fun DetailView(
 
     stateDetail?.let {
         Scaffold { innerPadding ->
+            val uniqueImages = stateDetail?.parts_state
+                ?.mapNotNull { it.image }
+                ?.filter { it != "No provisto" && it.isNotBlank() }
+                ?.map { "http://10.0.2.2:5000/${it.replace("\\", "/")}" }
+                ?.distinct()
+                ?: emptyList()
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -130,10 +137,15 @@ fun DetailView(
                             Column(modifier = Modifier.padding(12.dp)) {
                                 Text("Razones de validación", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(4.dp))
-                                val reasonsList = stateDetail!!.validation_reasons?.split(",")
+                                val reasonsList = stateDetail!!.validation_reasons
+                                    ?.split(",")
+                                    ?.map { it.trim() } // elimina espacios en blanco
+                                    ?.toSet() // elimina duplicados
+
                                 reasonsList?.forEach { reason ->
                                     Text("• $reason", style = MaterialTheme.typography.bodySmall)
                                 }
+
 
                             }
                         }
@@ -156,11 +168,7 @@ fun DetailView(
                                         Divider(thickness = 0.8.dp, color = Color.Gray)
                                         Text("• ${part.vehicle_part_name}", fontWeight = FontWeight.SemiBold)
 
-                                        if (!part.image.isNullOrBlank() && part.image != "No provisto") {
-                                            val fullUrl = "http://10.0.2.2:5000/${part.image.replace("\\", "/")}"
-                                            println("Full url $fullUrl")
-                                            NetworkImage(fullUrl)
-                                        } else {
+                                        if (part.image.isNullOrBlank() || part.image == "No provisto") {
                                             Text(
                                                 "Imagen: Dato no provisto",
                                                 fontSize = 12.sp,
@@ -181,9 +189,19 @@ fun DetailView(
                                 }
 
                             }
+
+                        }
+                        if (uniqueImages.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text("Imágenes", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Spacer(modifier = Modifier.height(8.dp))
+
+                            uniqueImages.forEach { url ->
+                                NetworkImage(url)
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
                         }
 
-                        Spacer(modifier = Modifier.height(12.dp))
                     }
 
                 }
@@ -195,20 +213,27 @@ fun DetailView(
 @Composable
 fun NetworkImage(url: String) {
     val context = LocalContext.current
-
-    AsyncImage(
+    SubcomposeAsyncImage(
         model = ImageRequest.Builder(context)
             .data(url)
             .crossfade(true)
             .build(),
         contentDescription = null,
+        contentScale = ContentScale.FillWidth, // Se ajusta al ancho, y el alto se adapta
+        loading = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(150.dp), // Altura temporal mientras carga
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        },
         modifier = Modifier
             .fillMaxWidth()
-            .height(180.dp)
-            .clip(RoundedCornerShape(8.dp)),
-        contentScale = ContentScale.Crop,
-        placeholder = painterResource(R.drawable.sedan_front_example),
-        error = painterResource(R.drawable.sedan_back_example)
+            .clip(RoundedCornerShape(8.dp))
     )
 }
+
 

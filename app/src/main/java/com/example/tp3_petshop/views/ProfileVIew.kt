@@ -1,27 +1,32 @@
 package com.example.tp3_petshop.views
 
 
-import androidx.compose.foundation.Image
+import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,22 +34,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tp3_petshop.R
 import com.example.tp3_petshop.components.BottomNavBar
-import com.example.tp3_petshop.components.SwitchButtons
-import com.example.tp3_petshop.components.TabsButton
+import com.example.tp3_petshop.components.ButtonAuthComp
+import com.example.tp3_petshop.components.RoundedTextField
 import com.example.tp3_petshop.models.ButtonOption
-import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
+import com.example.tp3_petshop.viewmodel.AuthViewModel
 
 val optionsProfile = listOf(
     ButtonOption("Saved", "saved"),
@@ -54,133 +54,147 @@ val optionsProfile = listOf(
 @Composable
 fun ProfileView(
     navigate: (value: String) -> Unit,
-){
-    Text("ProfileView")
-}
-
-/*
-@Composable
-fun ProfileView(
-    navigate: (value: String) -> Unit,
-    combinedViewModel: CombinedViewModel = hiltViewModel()
-
+    authViewModel: AuthViewModel
 ) {
-    val uiState by combinedViewModel.favoriteProducts.collectAsState()
-    var selectedTab by remember { mutableStateOf("saved") }
-    var selectedSwitch by remember { mutableStateOf("profile") }
+    val user by authViewModel.user.collectAsState()
+    var password by remember { mutableStateOf("") }
+    var confirmPassword by remember { mutableStateOf("") }
+    val error: String? by authViewModel.errorMessage.collectAsState()
+    val context = LocalContext.current
+    LaunchedEffect(error) {
+        error?.let {
+            Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+            authViewModel.clearError() // Asegúrate de tener esta función en el viewModel
+        }
+    }
 
-    val handleChangeTabs: (String) -> Unit = { value ->
-        selectedTab = value
-        if (value === "editprofile") navigate("settingsView")
-    }
-    val handleChangeSwitchButton: (String) -> Unit = { value ->
-        selectedSwitch = value
-        navigate("profileViewSellerMode")
-    }
+    // Reglas
+    val hasUppercase = password.any { it.isUpperCase() }
+    val hasLowercase = password.any { it.isLowerCase() }
+    val hasDigit = password.any { it.isDigit() }
+    val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+    val isLengthValid = password.length in 1..15
+    val passwordsMatch = password == confirmPassword
+
+    val isPasswordValid = hasUppercase && hasLowercase && hasDigit && hasSpecialChar && isLengthValid && passwordsMatch
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
 
     Scaffold(
-        bottomBar = { BottomNavBar(currentRoute = "profileView", onNavigate = { route ->
-            navigate(route)
-        }) }
+        bottomBar = {
+            BottomNavBar(currentRoute = "profileView", onNavigate = navigate)
+        }
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
+                .fillMaxSize()
+                .background(gradient)
                 .padding(innerPadding)
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            SwitchButtons(
-                switchOptions,
-                selectedSwitch,
-                handleChangeSwitchButton,
-                modifier = Modifier.align(Alignment.CenterHorizontally)
-            )
-
-            // Fondo + imagen superpuesta
-            Box(
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(209.dp),
-                contentAlignment = Alignment.TopCenter
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(20.dp))
-                        .height(159.dp)
-                ) {
-                    Image(
-                        painter = painterResource(R.drawable.profile_background_gray),
-                        contentDescription = "Fondo",
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                }
-
-                // Imagen circular superpuesta
-                Image(
-                    painter = painterResource(R.drawable.profile_avatar),
-                    contentDescription = "Avatar",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(100.dp)
-                        .offset(y = 109.dp) // baja desde el top, pero sobresale
-                        .clip(CircleShape)
-                )
-            }
-            Row {
                 Text(
-                    modifier = Modifier
-                        .padding(8.dp)
-                        .fillMaxWidth(),
-                    text = "Abduldul",
-                    textAlign = TextAlign.Center,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold
-
+                    "Perfil",
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.padding(bottom = 16.dp)
                 )
-            }
-            TabsButton(
-                Modifier.align(Alignment.CenterHorizontally),
-                optionsProfile,
-                selectedTab,
-                handleChange = handleChangeTabs
-            )
-            Column {
-                if (uiState.isNotEmpty()) {
-                    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-                        LazyVerticalGrid(
-                            columns = GridCells.Fixed(2),
-                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            modifier = Modifier.fillMaxHeight()
+
+                if (user != null) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                        elevation = CardDefaults.cardElevation(4.dp),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
-                            items(uiState) { product ->
-                                ProductCard(product = product) {
-                                    navigate("detail/${product.id}")
-                                }
+                            OutlinedTextField(
+                                value = user?.email.toString(),
+                                onValueChange = {},
+                                label = { Text("Email") },
+                                singleLine = true,
+                                enabled = true,
+                                readOnly = true,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+
+                            RoundedTextField(
+                                label = "Nueva contraseña",
+                                value = password,
+                                onValueChange = { password = it },
+                                placeholder = "Contraseña"
+                            )
+
+                            RoundedTextField(
+                                label = "Confirmar contraseña",
+                                value = confirmPassword,
+                                onValueChange = { confirmPassword = it },
+                                placeholder = "Confirmar contraseña"
+                            )
+
+                            // Reglas visuales
+                            Column(modifier = Modifier.padding(top = 8.dp)) {
+                                PasswordRule("Una letra mayúscula", hasUppercase)
+                                PasswordRule("Una letra minúscula", hasLowercase)
+                                PasswordRule("Un número", hasDigit)
+                                PasswordRule("Un carácter especial", hasSpecialChar)
+                                PasswordRule("Máximo 15 caracteres", isLengthValid)
+                                PasswordRule("Las contraseñas coinciden", passwordsMatch)
                             }
                         }
                     }
+
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    ButtonAuthComp(
+                        text = "Cambiar contraseña",
+                        onClick = {
+                            authViewModel.changePassword(password) {
+                                Toast.makeText(context, "Contraseña cambiada con éxito", Toast.LENGTH_SHORT).show()
+                                password = ""
+                                confirmPassword = ""
+                            }
+                        },
+                        enabled = isPasswordValid
+                    )
+
+                    Spacer(modifier = Modifier.weight(1f))
+
+                    ButtonAuthComp(
+                        text = "Logout",
+                        onClick = { authViewModel.logout(onSuccess = { navigate("initial") }) },
+                        enabled = true
+                    )
                 } else {
-                    Text("No hay productos favoritos", modifier = Modifier.padding(16.dp))
+                    Text(
+                        "No hay datos para mostrar",
+                        modifier = Modifier.padding(16.dp),
+                        color = Color.White
+                    )
                 }
-
             }
-
         }
     }
 }
 
 
-
-@Preview(showBackground = true)
 @Composable
+fun PasswordRule(text: String, passed: Boolean) {
+    val color = if (passed) Color(0xFF2E7D32) else Color(0xFFD32F2F)
+    val icon = if (passed) Icons.Default.Check else Icons.Default.Close
 
-fun ProfileViewPreview () {
-    TP3PETSHOPTheme (darkTheme = false, dynamicColor = false) {
-        ProfileView({}, viewModel())
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Icon(imageVector = icon, contentDescription = null, tint = color, modifier = Modifier.size(18.dp))
+        Spacer(modifier = Modifier.width(6.dp))
+        Text(text, fontSize = 13.sp, color = color)
     }
 }
-
- */

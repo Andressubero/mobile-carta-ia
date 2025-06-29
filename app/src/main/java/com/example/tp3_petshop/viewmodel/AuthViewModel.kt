@@ -2,6 +2,7 @@ package com.example.tp3_petshop.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tp3_petshop.models.ChangePasswordRequest
 import com.example.tp3_petshop.models.LoginRequest
 import com.example.tp3_petshop.models.Register
 import com.example.tp3_petshop.models.User
@@ -23,6 +24,10 @@ class AuthViewModel @Inject constructor(
     private val _errorMessage = MutableStateFlow<String?>(null)
     val errorMessage: StateFlow<String?> = _errorMessage
 
+    fun clearError(){
+        _errorMessage.value = null
+    }
+
 
     fun login(username: String, password: String, onSuccess: () -> Unit) {
         viewModelScope.launch {
@@ -31,6 +36,7 @@ class AuthViewModel @Inject constructor(
                 if (response.isSuccessful) {
                     val success = getMe()
                     if (success) {
+                        clearError()
                         onSuccess()
                     }
                 } else {
@@ -51,6 +57,7 @@ class AuthViewModel @Inject constructor(
                     delay(500)
                     getMe()
                     delay(500)
+                    clearError()
                     onSuccess()
                 } else {
                     _errorMessage.value = "Error ${response.code()}: ${response.message()}"
@@ -68,7 +75,7 @@ class AuthViewModel @Inject constructor(
                 val data = response.body()
                 if (data != null) {
                     _user.value = data
-                    _errorMessage.value = null
+                    clearError()
                     true
                 } else {
                     _errorMessage.value = "Error ${response.code()}: cuerpo vacío"
@@ -82,6 +89,42 @@ class AuthViewModel @Inject constructor(
             _errorMessage.value = "Error: ${e.message}"
             false
         }
+    }
+
+    fun changePassword(password: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = repository.changePassword(ChangePasswordRequest(password))
+                if (response.isSuccessful) {
+                    clearError()
+                    onSuccess()
+                } else {
+                    _errorMessage.value = "Error ${response.code()}: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Error: ${e.message}"
+            }
+
+        }
+
+    }
+
+    fun logout(onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            try {
+                val response = repository.logout()
+                if (response.isSuccessful) {
+                    clearError()
+                    onSuccess()
+                } else {
+                    _errorMessage.value = "Error ${response.code()}: ${response.message()}"
+                }
+            } catch (e: Exception) {
+                _errorMessage.value = "Error: ${e.message}"
+            }
+
+        }
+
     }
 
 }
