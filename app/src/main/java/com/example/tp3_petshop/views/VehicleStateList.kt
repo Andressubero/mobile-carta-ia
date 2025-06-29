@@ -114,6 +114,7 @@ fun VehicleStateList(
                     items(states) { state ->
                         VehicleStateCard(
                             vehicle = state,
+                            isAdmin = user?.role?.equals("admin") == true,
                             onDetailClick = { navController.navigate("detail/${state.id}") },
                             onReportClick = { navController.navigate("reportView/${state.id}") },
                             onChangeStatusClick = { navController.navigate("changeStatus/${state.id}") }

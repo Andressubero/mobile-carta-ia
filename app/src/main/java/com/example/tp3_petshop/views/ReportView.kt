@@ -1,5 +1,6 @@
 package com.example.tp3_petshop.views
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -8,6 +9,8 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -27,6 +30,10 @@ fun ReportView(
         viewModel.getById(reportId)
     }
 
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
+
     if (reportId == "") {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
@@ -37,6 +44,7 @@ fun ReportView(
     val safeReport = report ?: return
 
     Scaffold(
+        modifier = Modifier.statusBarsPadding(),
         topBar = {
             TopBarSection(
                 title = "Resumen del Reporte",
@@ -51,16 +59,25 @@ fun ReportView(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .background(gradient)
                 .padding(horizontal = 20.dp, vertical = 16.dp)
         ) {
             item {
+                // Información general del reporte
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
                     elevation = CardDefaults.cardElevation(4.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
+                        Text(
+                            "Resumen del reporte",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
                         InfoRow("Marca estimada", safeReport.estimated_brand)
                         InfoRow("Modelo estimado", safeReport.estimated_model)
                         InfoRow("Tipo de vehículo", safeReport.vehicle_type)
@@ -88,21 +105,31 @@ fun ReportView(
                 }
 
                 Spacer(modifier = Modifier.height(28.dp))
+                Card(       modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    shape = RoundedCornerShape(12.dp)) {
+                    Text(
+                        text = "Daños detectados",
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
 
-                Text(
-                    text = "Daños detectados",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
             }
 
+            // Daños por parte del vehículo
             items(safeReport.part_damages) { damage ->
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    elevation = CardDefaults.cardElevation(6.dp)
+                    colors = CardDefaults.cardColors(containerColor = Color(0xFFF5F5F5)),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
                     Column(modifier = Modifier.padding(12.dp)) {
                         Text(damage.part_name, fontWeight = FontWeight.Bold)
@@ -115,6 +142,7 @@ fun ReportView(
                 }
             }
         }
+
     }
 }
 
