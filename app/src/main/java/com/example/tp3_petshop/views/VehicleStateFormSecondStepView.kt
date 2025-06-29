@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -54,6 +55,7 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
 import java.text.Normalizer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.positionInWindow
 import com.example.tp3_petshop.data.hatchbackPoints
@@ -94,9 +96,10 @@ fun VehicleStateFormSecondStepView(
 
 // 1) Lanza la carga del vehículo con partes
     LaunchedEffect(vehicleId) {
-        println("Cargando vehículo con partes para vehicleId=$vehicleId")
-        vehicleViewModel.getVehicleWithPartsById(vehicleId)
-        viewModel.isFirstState(vehicleId);
+        if (vehicle == null) {
+            vehicleViewModel.getVehicleWithPartsById(vehicleId)
+            viewModel.isFirstState(vehicleId);
+        }
     }
 
 // 2) Cuando cambia vehicle?.parts y partStates está vacío, inicializa estados
@@ -117,7 +120,9 @@ fun VehicleStateFormSecondStepView(
     }
 
 
-
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
 
     val type = vehicle?.type?.let { normalize(it) }.orEmpty()
     val croquisRes = when {
@@ -189,7 +194,9 @@ fun VehicleStateFormSecondStepView(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .background(gradient)
             .padding(16.dp)
+
     ) {
         containerSize = IntSize(constraints.maxWidth, constraints.maxHeight)
 
@@ -291,10 +298,19 @@ fun NavigationButtons(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        OutlinedButton(onClick = onBack) {
+        OutlinedButton(onClick = onBack,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )) {
             Text("Volver")
         }
-        Button(onClick = onNext, enabled = isNextEnabled) {
+        Button(onClick = onNext,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )
+            ,enabled = isNextEnabled,) {
             Text("Siguiente")
         }
     }
