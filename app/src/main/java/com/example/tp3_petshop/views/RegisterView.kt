@@ -17,22 +17,24 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tp3_petshop.components.ButtonAuthComp
 import com.example.tp3_petshop.components.FormAuth
-import com.example.tp3_petshop.models.Login
+import com.example.tp3_petshop.models.LoginRequest
 import com.example.tp3_petshop.models.Register
 import com.example.tp3_petshop.network.RetrofitInstance
 import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
+import com.example.tp3_petshop.viewmodel.AuthViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun RegisterView(navController: NavController? = null) {
+fun RegisterView(navController: NavController? = null, authViewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
     var registerError by remember { mutableStateOf(false) }
     var registerMessage by remember { mutableStateOf("") }
+    val error: String? by authViewModel.errorMessage.collectAsState()
 
     val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && password == confirmPassword
 
@@ -95,36 +97,16 @@ fun RegisterView(navController: NavController? = null) {
                 text = "Registrarse",
                 onClick = {
                     if (isButtonEnabled) {
-                        registerError = false
-                        CoroutineScope(Dispatchers.Main).launch {
-                            try {
-                                val response = withContext(Dispatchers.IO) {
-                                    RetrofitInstance.authService.register(
-                                        Register(username = email, email = email, password = password)
-                                    )
-                                }
-
-                                if (response.success) {
-                                    navController?.navigate("login")
-                                } else {
-                                    registerMessage = response.message
-                                    registerError = true
-                                }
-
-                            } catch (e: Exception) {
-                                registerMessage = "Error al registrar usuario"
-                                registerError = true
-                            }
-                        }
+                        authViewModel.register(username = email, password = password, onSuccess = {navController?.navigate("login")})
                     }
                 },
                 enabled = isButtonEnabled
             )
 
-            if (registerError) {
+            if (error != null) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = registerMessage,
+                    text = error!!,
                     color = Color.Red,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold
@@ -139,13 +121,5 @@ fun RegisterView(navController: NavController? = null) {
                 Text("Volver", color = Color(0xFF6C63FF))
             }
         }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun RegisterViewPreview() {
-    TP3PETSHOPTheme(darkTheme = false, dynamicColor = false) {
-        RegisterView()
     }
 }

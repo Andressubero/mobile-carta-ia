@@ -60,7 +60,7 @@ fun SplashView(onGetStartedClick: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(32.dp))
 
             ButtonAuthComp(
-                text = "Get Started",
+                text = "Comenzar",
                 onClick = onGetStartedClick,
                 enabled = true
             )

@@ -1,24 +1,29 @@
 package com.example.tp3_petshop.network
 
-import com.example.tp3_petshop.models.Login
+import com.example.tp3_petshop.models.ChangePasswordRequest
+import com.example.tp3_petshop.models.LoginRequest
 import com.example.tp3_petshop.models.LoginResponse
-import com.example.tp3_petshop.models.LogoutResponse
 import com.example.tp3_petshop.models.Register
 import com.example.tp3_petshop.models.RegisterResponse
+import com.example.tp3_petshop.models.User
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
 interface AuthService {
     @POST("user/create")
-    suspend fun register(@Body request: Register): RegisterResponse
+    suspend fun register(@Body request: Register): Response<RegisterResponse>
 
     @POST("user/login")
-    suspend fun login(@Body request: Login): LoginResponse
+    suspend fun login(@Body request: LoginRequest): Response<LoginResponse>
 
     @GET("user/me")
-    suspend fun getMe(@Body request: Login): LoginResponse
+    suspend fun getMe(): Response<User>
+
+    @POST("user/edit-password")
+    suspend fun changePassword(@Body request: ChangePasswordRequest): Response<String>
 
     @POST("user/logout")
-    suspend fun logout(): LogoutResponse
+    suspend fun logout(): Response<LoginResponse>
 }

@@ -30,21 +30,34 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.tp3_petshop.components.VehicleStateCard
+import com.example.tp3_petshop.viewmodel.AuthViewModel
 
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 
 @Composable
 fun VehicleStateList(
     navController: NavController,
-    viewModel: VehicleStateViewModel = hiltViewModel()
+    viewModel: VehicleStateViewModel,
+    authViewModel: AuthViewModel
 ) {
     val states by viewModel.vehicleStates.collectAsState()
+    val user by authViewModel.user.collectAsState()
     val error: String? by viewModel.errorMessage.collectAsState()
+
+    LaunchedEffect(user) {
+        if (user !== null) {
+            viewModel.getAll()
+        }
+    }
 
     when {
         states.isEmpty() && error == null -> {
             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                Text(text ="Aún no tienes cartas de daño registradas",
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.headlineSmall
+                )
+
             }
         }
 
@@ -101,6 +114,7 @@ fun VehicleStateList(
                     items(states) { state ->
                         VehicleStateCard(
                             vehicle = state,
+                            isAdmin = user?.role?.equals("admin") == true,
                             onDetailClick = { navController.navigate("detail/${state.id}") },
                             onReportClick = { navController.navigate("reportView/${state.id}") },
                             onChangeStatusClick = { navController.navigate("changeStatus/${state.id}") }

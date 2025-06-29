@@ -21,7 +21,8 @@ fun VehicleStateCard(
     vehicle: VehicleState,
     onDetailClick: () -> Unit,
     onReportClick: () -> Unit,
-    onChangeStatusClick: () -> Unit
+    onChangeStatusClick: () -> Unit,
+    isAdmin: Boolean
 ) {
     Card(
         modifier = Modifier
@@ -56,7 +57,7 @@ fun VehicleStateCard(
                     color = Color.Gray
                 )
                 Text(
-                    text = "Creado: ${vehicle.creation_date.substring(0, 10)}",
+                    text = "Creado: ${vehicle.creation_date?.substring(0, 10)}",
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Normal,
                     color = Color.Gray
@@ -69,23 +70,27 @@ fun VehicleStateCard(
                 )
             }
 
-            Column(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .padding(start = 8.dp),
-                verticalArrangement = Arrangement.SpaceBetween,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                IconButton(onClick = onDetailClick, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Info, contentDescription = "Ver detalle", modifier = Modifier.size(20.dp))
+            if (isAdmin) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .padding(start = 8.dp),
+                    verticalArrangement = Arrangement.SpaceBetween,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    IconButton(onClick = onDetailClick, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Info, contentDescription = "Ver detalle", modifier = Modifier.size(20.dp))
+                    }
+                    IconButton(onClick = onReportClick, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Build, contentDescription = "Ver reporte", modifier = Modifier.size(20.dp))
+                    }
+                    IconButton(onClick = onChangeStatusClick, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Default.Add, contentDescription = "Cambiar estado", modifier = Modifier.size(20.dp))
+                    }
                 }
-                IconButton(onClick = onReportClick, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Build, contentDescription = "Ver reporte", modifier = Modifier.size(20.dp))
-                }
-                IconButton(onClick = onChangeStatusClick, modifier = Modifier.size(28.dp)) {
-                    Icon(Icons.Default.Add, contentDescription = "Cambiar estado", modifier = Modifier.size(20.dp))
-                }
+
             }
+
         }
     }
 }

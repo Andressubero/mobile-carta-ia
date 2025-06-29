@@ -1,4 +1,5 @@
 package com.example.tp3_petshop.views
+import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
@@ -20,6 +21,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -52,6 +55,7 @@ import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
 import java.text.Normalizer
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.positionInWindow
 import com.example.tp3_petshop.data.hatchbackPoints
@@ -66,6 +70,7 @@ fun normalize(text: String): String {
         .lowercase()
 }
 
+@SuppressLint("UnusedBoxWithConstraintsScope")
 @Composable
 fun VehicleStateFormSecondStepView(
     vehicleId: String,
@@ -89,8 +94,19 @@ fun VehicleStateFormSecondStepView(
     var containerSize by remember { mutableStateOf(IntSize.Zero) }
     var imageOffset by remember { mutableStateOf(Offset.Zero) }
 
-    LaunchedEffect(vehicle?.id) {
+// 1) Lanza la carga del vehículo con partes
+    LaunchedEffect(vehicleId) {
+        if (vehicle == null) {
+            vehicleViewModel.getVehicleWithPartsById(vehicleId)
+            viewModel.isFirstState(vehicleId);
+        }
+    }
+
+// 2) Cuando cambia vehicle?.parts y partStates está vacío, inicializa estados
+    LaunchedEffect(vehicle?.parts, partStates) {
         if (!vehicle?.parts.isNullOrEmpty() && partStates.isEmpty()) {
+            println("Inicializando estados de partes")
+
             val mapped = vehicle!!.parts.map { part ->
                 EstadoParte(
                     name = part.name,
@@ -100,12 +116,13 @@ fun VehicleStateFormSecondStepView(
             }
             viewModel.setEstadoPartes(mapped)
             println("✅ EstadoPartes cargados: ${mapped.size}")
-        } else {
-            vehicleViewModel.getVehicleWithPartsById(vehicleId)
-            viewModel.isFirstState(vehicleId)
         }
     }
 
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
 
     val type = vehicle?.type?.let { normalize(it) }.orEmpty()
     val croquisRes = when {
@@ -126,26 +143,60 @@ fun VehicleStateFormSecondStepView(
 
     fun onSubmit() {
         var filteredStates: List<EstadoParte>
+        println("Es primer estado:" + isFirstState + " cantidad de partStates: " + partStates.size)
         if (!isFirstState) {
             filteredStates = partStates.filter { estadoParte ->
                 estadoParte.damages.any { it.damageType != DamageType.SIN_DANO }
             }
+
             viewModel.setEstadoPartes(filteredStates)
+
+            val usedSides: List<String> = points
+                .filter { partPosition ->
+                    filteredStates.any { it.name == partPosition.name }
+                }
+                .map { it.side }
+                .distinct()
+            viewModel.addSides(usedSides)
             println("🧩 estado filtrado → $filteredStates")
+            println("🧩 Lados usados → $usedSides")
             if (filteredStates.isNotEmpty()) {
                 onNext()
             } else {
                 Toast.makeText(context, "Debes seleccionar al menos una parte", Toast.LENGTH_SHORT).show()
             }
         } else {
-            onNext()
+            viewModel.setEstadoPartes(partStates)
+            val usedSides: List<String> = points
+                .filter { partPosition ->
+                    partStates.any { it.name == partPosition.name }
+                }
+                .map { it.side }
+                .distinct()
+            println("🧩 estado filtrado → $partStates")
+            println("🧩 Lados usados → $usedSides")
+            viewModel.addSides(usedSides)
+            if (partStates.isNotEmpty()) {
+                onNext()
+            } else {
+                Toast.makeText(context, "Debes seleccionar al menos una parte", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    if (vehicle == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
     }
 
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .background(gradient)
             .padding(16.dp)
+
     ) {
         containerSize = IntSize(constraints.maxWidth, constraints.maxHeight)
 
@@ -174,6 +225,7 @@ fun VehicleStateFormSecondStepView(
                 points.forEach { part ->
                     val isSelected = partStates.find { it.name == part.name }
                         ?.damages?.any { it.damageType != DamageType.SIN_DANO } == true
+
 
                     val offsetX = (part.leftPercent / 100f) * imageSize.width
                     val offsetY = (part.topPercent / 100f) * imageSize.height
@@ -220,7 +272,7 @@ fun VehicleStateFormSecondStepView(
                             part.name,
                             DamagePoint(damageType, description)
                         )
-                        viewModel.addSide(part.side)
+                        //viewModel.addSide(part.side)
                         Toast.makeText(context, "Daño agregado a ${part.name}", Toast.LENGTH_SHORT).show()
                     }
                     damageType = DamageType.SIN_DANO
@@ -246,12 +298,20 @@ fun NavigationButtons(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        OutlinedButton(onClick = onBack) {
+        OutlinedButton(onClick = onBack,
+            colors = ButtonDefaults.outlinedButtonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )) {
             Text("Volver")
         }
-        Button(onClick = onNext, enabled = isNextEnabled) {
+        Button(onClick = onNext,
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.White,
+                contentColor = Color.Black
+            )
+            ,enabled = isNextEnabled,) {
             Text("Siguiente")
         }
     }
 }
-

@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,16 +34,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.tp3_petshop.R
-import com.example.tp3_petshop.models.DamagePoint
-import com.example.tp3_petshop.models.DamageType
-import com.example.tp3_petshop.models.EstadoParte
 import com.example.tp3_petshop.models.VehicleImage
 import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
 import com.example.tp3_petshop.viewmodel.VehicleViewModel
@@ -65,10 +65,15 @@ fun VehiclesStateFormThirdStepView(
     var currentSideKey by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
+        println("--------------Sides-------$sides")
         if (vehicle == null) {
             vehicleViewModel.getVehicleWithPartsById(vehicleId)
         }
     }
+
+    val gradient = Brush.verticalGradient(
+        colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
+    )
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent()
@@ -126,11 +131,14 @@ fun VehiclesStateFormThirdStepView(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState()) // 🔁 Scroll habilitado
-                .padding(16.dp)
+                .background(gradient)
+                .padding(horizontal = 16.dp, vertical = 32.dp)
         ) {
             Text(
                 text = "Subí imágenes de los lados afectados",
-                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
@@ -206,12 +214,21 @@ fun VehiclesStateFormThirdStepView(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
-                Button(onClick = onBack) {
+                Button(onClick = onBack,colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color.Black
+                )
+                ) {
                     Text("Anterior")
                 }
                 Button(
                     onClick = { onSubmit() },
-                    enabled = !isLoading && images.size == sides.size
+                    enabled = !isLoading && images.size == sides.size,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color.White,
+                        contentColor = Color.Black
+                    )
+
                 ) {
                     Text("Crear Estado")
                 }

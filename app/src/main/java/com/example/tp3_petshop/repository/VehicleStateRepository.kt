@@ -89,5 +89,8 @@ class VehicleStateRepository @Inject constructor(
     suspend fun isFirstState(id: String): Response<IsFirstStateResponse> {
         return RetrofitInstance.vehicleStateService.isFirstState(id)
     }
+    suspend fun getById(id: String): Response<VehicleState> {
+        return RetrofitInstance.vehicleStateService.getById(id)
+    }
 
 }
