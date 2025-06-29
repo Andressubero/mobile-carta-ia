@@ -136,9 +136,9 @@ fun VehiclesStateFormThirdStepView(
         ) {
             Text(
                 text = "Subí imágenes de los lados afectados",
-                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
+                style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 16.dp)
             )
 
