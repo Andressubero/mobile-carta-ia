@@ -1,7 +1,6 @@
 package com.example.tp3_petshop.views
 import android.annotation.SuppressLint
 import android.widget.Toast
-import androidx.annotation.DrawableRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,15 +14,12 @@ import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,34 +31,30 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.tp3_petshop.R
 import com.example.tp3_petshop.components.DamagePopup
-import com.example.tp3_petshop.models.DamageType
-import com.example.tp3_petshop.models.EstadoParte
-import com.example.tp3_petshop.models.PartPosition
-import com.example.tp3_petshop.models.DamagePoint
-import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
-import com.example.tp3_petshop.viewmodel.VehicleViewModel
-import java.text.Normalizer
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.positionInWindow
 import com.example.tp3_petshop.data.hatchbackPoints
 import com.example.tp3_petshop.data.motorbikePoints
 import com.example.tp3_petshop.data.pickupPoints
 import com.example.tp3_petshop.data.sedanPoints
-import kotlinx.coroutines.flow.update
+import com.example.tp3_petshop.models.DamagePoint
+import com.example.tp3_petshop.models.DamageType
+import com.example.tp3_petshop.models.EstadoParte
+import com.example.tp3_petshop.models.PartPosition
+import com.example.tp3_petshop.viewmodel.VehicleStateViewModel
+import com.example.tp3_petshop.viewmodel.VehicleViewModel
+import java.text.Normalizer
 
 fun normalize(text: String): String {
     return Normalizer.normalize(text, Normalizer.Form.NFD)
@@ -98,8 +90,8 @@ fun VehicleStateFormSecondStepView(
     LaunchedEffect(vehicleId) {
         if (vehicle == null) {
             vehicleViewModel.getVehicleWithPartsById(vehicleId)
-            viewModel.isFirstState(vehicleId);
         }
+        viewModel.isFirstState(vehicleId);
     }
 
 // 2) Cuando cambia vehicle?.parts y partStates está vacío, inicializa estados
