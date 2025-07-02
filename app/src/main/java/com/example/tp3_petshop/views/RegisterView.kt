@@ -21,7 +21,7 @@ import com.example.tp3_petshop.viewmodel.AuthViewModel
 
 
 fun isPasswordValid(password: String): Boolean {
-    val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,15}$")
+    val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&#])[A-Za-z\\d@\$!%*?&#]{8,15}$")
     return regex.matches(password)
 }
 
