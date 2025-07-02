@@ -11,32 +11,33 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.tp3_petshop.components.ButtonAuthComp
 import com.example.tp3_petshop.components.FormAuth
-import com.example.tp3_petshop.models.LoginRequest
-import com.example.tp3_petshop.models.Register
-import com.example.tp3_petshop.network.RetrofitInstance
-import com.example.tp3_petshop.ui.theme.TP3PETSHOPTheme
 import com.example.tp3_petshop.viewmodel.AuthViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+
+
+fun isPasswordValid(password: String): Boolean {
+    val regex = Regex("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@\$!%*?&])[A-Za-z\\d@\$!%*?&]{8,15}$")
+    return regex.matches(password)
+}
+
+fun isEmailValid(email: String): Boolean {
+    val regex = Regex("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}$")
+    return regex.matches(email)
+}
 
 @Composable
 fun RegisterView(navController: NavController? = null, authViewModel: AuthViewModel) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
-    var registerError by remember { mutableStateOf(false) }
-    var registerMessage by remember { mutableStateOf("") }
     val error: String? by authViewModel.errorMessage.collectAsState()
 
-    val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && password == confirmPassword
+    val isButtonEnabled = email.isNotBlank() && password.isNotBlank() && confirmPassword.isNotBlank() && password == confirmPassword && isPasswordValid(password) && isPasswordValid(confirmPassword) && isEmailValid(email)
 
     val gradient = Brush.verticalGradient(
         colors = listOf(Color(0xFFB3CFFB), Color(0xFF7A6FF1))
@@ -68,7 +69,7 @@ fun RegisterView(navController: NavController? = null, authViewModel: AuthViewMo
 
             FormAuth(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { if (it.length <= 40) email = it },
                 placeholder = "Email",
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
@@ -77,7 +78,7 @@ fun RegisterView(navController: NavController? = null, authViewModel: AuthViewMo
 
             FormAuth(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { if (it.length <= 15) password = it },
                 placeholder = "Contraseña:",
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
@@ -86,7 +87,7 @@ fun RegisterView(navController: NavController? = null, authViewModel: AuthViewMo
 
             FormAuth(
                 value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                onValueChange = { if (it.length <= 15) confirmPassword = it },
                 placeholder = "Confirmar contraseña:",
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
@@ -114,6 +115,14 @@ fun RegisterView(navController: NavController? = null, authViewModel: AuthViewMo
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                text = "La contraseña deberá tener entre 8 y 15 caracteres, y al menos una mayúscula, una minúscula, un número y un caracter especial.",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.fillMaxWidth()
+            )
 
             TextButton(onClick = {
                 navController?.popBackStack()
