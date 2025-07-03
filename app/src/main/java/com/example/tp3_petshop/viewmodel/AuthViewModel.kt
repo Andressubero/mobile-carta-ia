@@ -55,8 +55,6 @@ class AuthViewModel @Inject constructor(
                 val response = repository.register(Register(username, username, password))
                 if (response.isSuccessful) {
                     delay(500)
-                    getMe()
-                    delay(500)
                     clearError()
                     onSuccess()
                 } else {

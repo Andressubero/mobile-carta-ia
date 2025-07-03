@@ -72,7 +72,7 @@ fun LoginView(navController: NavController? = null, viewModel: AuthViewModel) {
 
             FormAuth(
                 value = email,
-                onValueChange = { email = it },
+                onValueChange = { if (it.length <= 40) email = it },
                 placeholder = "Usuario",
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
@@ -81,7 +81,7 @@ fun LoginView(navController: NavController? = null, viewModel: AuthViewModel) {
 
             FormAuth(
                 value = password,
-                onValueChange = { password = it },
+                onValueChange = { if (it.length <= 15) password = it },
                 placeholder = "Contraseña",
                 keyboard = KeyboardOptions(keyboardType = KeyboardType.Password)
             )
